@@ -1,0 +1,13 @@
+"Phrases"
+{
+    "Fast respawn detected"
+    {
+        "#format" "{1:s}, {2:d}, {3:d}"
+        "en"    "Player {1} fast respawned (Warnings {2}/{3})"
+    }
+
+    "Fast respawn forbidden"
+    {
+        "en"    "Fast respawn forbidden"
+    }
+}
