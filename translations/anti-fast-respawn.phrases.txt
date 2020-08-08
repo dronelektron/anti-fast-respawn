@@ -22,4 +22,10 @@
         "#format" "{1:s}"
         "en"    "Warnings for player {1} are reset to zero"
     }
+
+    "Player is abusing fast respawn"
+    {
+        "#format" "{1:s},{2:d}"
+        "en"    "Player {1} is abusing fast respawn (already {2} times)"
+    }
 }
