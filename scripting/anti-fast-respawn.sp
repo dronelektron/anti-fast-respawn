@@ -1,22 +1,30 @@
 #include <sourcemod>
 
+#define PLUGIN_PREFIX "[AFR]"
+
+#define USAGE_PREFIX "[SM] Usage"
+#define USAGE_COMMAND_WARNINGS "sm_afr_warnings <#userid|name>"
+#define USAGE_COMMAND_RESET_WARNINGS "sm_afr_reset_warnings <#userid|name>"
+
+#define EVENT_PLAYER_CHANGE_CLASS "player_changeclass"
+#define RESPAWN_THRESHOLD_MSEC 0.1
+#define MAX_TEXT_LENGHT 192
+
+#define PUNISH_TYPE_KICK 1
+#define PUNISH_TYPE_BAN 1
+
 public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
     description = "Prevents the player from fast respawn after death when the player has changed his class",
-    version = "0.2.0",
+    version = "0.3.0",
     url = ""
 }
 
-static char PLUGIN_PREFIX[] = "[AFR]";
-static char USAGE_PREFIX[] = "[SM] Usage";
-static char USAGE_COMMAND_WARNINGS[] = "sm_afr_warnings <#userid|name>";
-static char USAGE_COMMAND_RESET_WARNINGS[] = "sm_afr_reset_warnings <#userid|name>";
-static char EVENT_PLAYER_CHANGE_CLASS[] = "player_changeclass";
-static float RESPAWN_THRESHOLD_MSEC = 0.1;
-
 static ConVar g_pluginEnable = null;
 static ConVar g_maxWarnings = null;
+static ConVar g_punishType = null;
+static ConVar g_banTime = null;
 
 enum struct PlayerState {
     Handle punishTimer;
@@ -32,6 +40,8 @@ public void OnPluginStart() {
 
     g_pluginEnable = CreateConVar("sm_afr_enable", "0", "Enable (1) or disable (0) plugin");
     g_maxWarnings = CreateConVar("sm_afr_max_warnings", "3", "Maximum warnings about fast respawn");
+    g_punishType = CreateConVar("sm_afr_punish_type", "1", "Punish type for fast respawn (0 - no action, 1 - kick, 2 - ban)");
+    g_banTime = CreateConVar("sm_afr_ban_time", "5", "Ban time for fast respawn (in minutes)");
 
     RegAdminCmd("sm_afr_warnings", Command_Warnings, ADMFLAG_GENERIC, USAGE_COMMAND_WARNINGS);
     RegAdminCmd("sm_afr_reset_warnings", Command_ResetWarnings, ADMFLAG_GENERIC, USAGE_COMMAND_RESET_WARNINGS);
@@ -149,12 +159,33 @@ void PunishPlayer(int client) {
     int maxWarnings = GetMaxWarnings();
 
     if (playerWarnings > maxWarnings) {
-        KickClient(client, "%s %t", PLUGIN_PREFIX, "Fast respawn forbidden");
+        PunishPlayerByType(client);
     } else {
         char nickname[MAX_NAME_LENGTH];
 
         GetClientName(client, nickname, sizeof(nickname));
         PrintToChatAll("%s %t", PLUGIN_PREFIX, "Fast respawn detected", nickname, playerWarnings, maxWarnings);
+    }
+}
+
+void PunishPlayerByType(int client) {
+    int punishType = GetPunishType();
+    char reason[MAX_TEXT_LENGHT];
+
+    Format(reason, sizeof(reason), "%s %t", PLUGIN_PREFIX, "Fast respawn forbidden");
+
+    if (punishType == PUNISH_TYPE_KICK) {
+        KickClient(client, reason);
+    } else if (punishType == PUNISH_TYPE_BAN) {
+        int banTime = GetBanTime();
+
+        BanClient(client, banTime, BANFLAG_AUTHID, reason, reason);
+    } else {
+        char playerName[MAX_NAME_LENGTH];
+        int playerWarnings = g_playerStates[client].warnings;
+
+        GetClientName(client, playerName, sizeof(playerName));
+        PrintToChatAll("%s %t", PLUGIN_PREFIX, "Player is abusing fast respawn", playerName, playerWarnings);
     }
 }
 
@@ -164,4 +195,12 @@ bool IsPluginEnabled() {
 
 int GetMaxWarnings() {
     return g_maxWarnings.IntValue;
+}
+
+int GetPunishType() {
+    return g_punishType.IntValue;
+}
+
+int GetBanTime() {
+    return g_banTime.IntValue;
 }
