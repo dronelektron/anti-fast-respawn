@@ -1,8 +1,8 @@
 #include <sourcemod>
 
-#define PLUGIN_PREFIX "[AFR]"
+#define PLUGIN_PREFIX "[AFR] "
 
-#define USAGE_PREFIX "[SM] Usage"
+#define USAGE_PREFIX "[AFR] Usage"
 #define USAGE_COMMAND_WARNINGS "sm_afr_warnings <#userid|name>"
 #define USAGE_COMMAND_RESET_WARNINGS "sm_afr_reset_warnings <#userid|name>"
 
@@ -17,7 +17,7 @@ public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
     description = "Prevents the player from fast respawn after death when the player has changed his class",
-    version = "0.3.0",
+    version = "0.3.1",
     url = ""
 }
 
@@ -99,10 +99,12 @@ public Action Command_Warnings(int client, int args) {
         return Plugin_Handled;
     }
 
+    char targetName[MAX_NAME_LENGTH];
     int playerWarnings = g_playerStates[target].warnings;
     int maxWarnings = GetMaxWarnings();
 
-    ReplyToCommand(client, "%s %t", PLUGIN_PREFIX, "Warnings for player", name, playerWarnings, maxWarnings);
+    GetClientName(target, targetName, sizeof(targetName));
+    ReplyToCommand(client, "%s%t", PLUGIN_PREFIX, "Warnings for player", targetName, playerWarnings, maxWarnings);
 
     return Plugin_Handled;
 }
@@ -129,7 +131,7 @@ public Action Command_ResetWarnings(int client, int args) {
     char targetName[MAX_NAME_LENGTH];
 
     GetClientName(target, targetName, sizeof(targetName));
-    ShowActivity2(client, PLUGIN_PREFIX, " %t", "Warnings for the player are reset to zero", targetName);
+    ShowActivity2(client, PLUGIN_PREFIX, "%t", "Warnings for the player are reset to zero", targetName);
 
     return Plugin_Handled;
 }
@@ -164,7 +166,7 @@ void PunishPlayer(int client) {
         char nickname[MAX_NAME_LENGTH];
 
         GetClientName(client, nickname, sizeof(nickname));
-        PrintToChatAll("%s %t", PLUGIN_PREFIX, "Fast respawn detected", nickname, playerWarnings, maxWarnings);
+        PrintToChatAll("%s%t", PLUGIN_PREFIX, "Fast respawn detected", nickname, playerWarnings, maxWarnings);
     }
 }
 
@@ -172,7 +174,7 @@ void PunishPlayerByType(int client) {
     int punishType = GetPunishType();
     char reason[MAX_TEXT_LENGHT];
 
-    Format(reason, sizeof(reason), "%s %t", PLUGIN_PREFIX, "Fast respawn forbidden");
+    Format(reason, sizeof(reason), "%s%t", PLUGIN_PREFIX, "Fast respawn forbidden");
 
     if (punishType == PUNISH_TYPE_KICK) {
         KickClient(client, reason);
@@ -185,7 +187,7 @@ void PunishPlayerByType(int client) {
         int playerWarnings = g_playerStates[client].warnings;
 
         GetClientName(client, playerName, sizeof(playerName));
-        PrintToChatAll("%s %t", PLUGIN_PREFIX, "Player is abusing fast respawn", playerName, playerWarnings);
+        PrintToChatAll("%s%t", PLUGIN_PREFIX, "Player is abusing fast respawn", playerName, playerWarnings);
     }
 }
 
