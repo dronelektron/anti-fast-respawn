@@ -28,4 +28,20 @@
         "#format" "{1:s},{2:d}"
         "en"    "Player {1} is abusing fast respawn (already {2} times)"
     }
+
+    "menu"
+    {
+        "en"    "menu"
+    }
+
+    "Warnings"
+    {
+        "#format" "{1:d},{2:d}"
+        "en"    "Warnings: {1}/{2}"
+    }
+
+    "Reset warnings"
+    {
+        "en"    "Reset warnings"
+    }
 }
