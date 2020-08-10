@@ -19,7 +19,7 @@ public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
     description = "Prevents the player from fast respawn after death when the player has changed his class",
-    version = "0.4.0",
+    version = "0.4.1",
     url = ""
 }
 
@@ -109,6 +109,7 @@ public Action Command_Warnings(int client, int args) {
 
     GetClientName(target, targetName, sizeof(targetName));
     ReplyToCommand(client, "%s%t", PLUGIN_PREFIX, "Warnings for player", targetName, playerWarnings, maxWarnings);
+    LogAction(client, target, "%L: %t", client, "Warnings for player", targetName, playerWarnings, maxWarnings);
 
     return Plugin_Handled;
 }
@@ -130,12 +131,13 @@ public Action Command_ResetWarnings(int client, int args) {
         return Plugin_Handled;
     }
 
-    g_playerStates[target].warnings = 0;
-
     char targetName[MAX_NAME_LENGTH];
 
     GetClientName(target, targetName, sizeof(targetName));
     ShowActivity2(client, PLUGIN_PREFIX, "%t", "Warnings for the player are reset to zero", targetName);
+    LogAction(client, target, "%L: %t", client, "Warnings for the player are reset to zero", targetName);
+
+    g_playerStates[target].warnings = 0;
 
     return Plugin_Handled;
 }
@@ -171,6 +173,7 @@ void PunishPlayer(int client) {
 
         GetClientName(client, nickname, sizeof(nickname));
         PrintToChatAll("%s%t", PLUGIN_PREFIX, "Fast respawn detected", nickname, playerWarnings, maxWarnings);
+        LogAction(-1, -1, "%t", "Fast respawn detected", nickname, playerWarnings, maxWarnings);
         FreezePlayer(client);
     }
 }
@@ -193,6 +196,7 @@ void PunishPlayerByType(int client) {
 
         GetClientName(client, playerName, sizeof(playerName));
         PrintToChatAll("%s%t", PLUGIN_PREFIX, "Player is abusing fast respawn", playerName, playerWarnings);
+        LogAction(-1, -1, "%t", "Player is abusing fast respawn", playerName, playerWarnings);
         FreezePlayer(client);
     }
 }
