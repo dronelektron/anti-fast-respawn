@@ -4,7 +4,7 @@ Prevents the player from fast respawn after death when the player has changed hi
 
 # Installation
 
-* Download latest [release](https://github.com/Dron-elektron/anti-fast-respawn/releases)
+* Download latest [release](https://github.com/Dron-elektron/anti-fast-respawn/releases) (compiled for SourceMod 1.10)
 * Extract "plugins" and "translations" folders to "addons/sourcemod" folder of your server
 
 # Console Variables
