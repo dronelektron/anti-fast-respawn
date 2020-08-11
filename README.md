@@ -17,5 +17,6 @@ Prevents the player from fast respawn after death when the player has changed hi
 
 # Console Commands
 
-* sm_afr_warnings <#userid|name> - Shows warnings amount for given player
-* sm_afr_reset_warnings <#userid|name> - Resets warnings amount for given player
+* sm_afr - Show AFR menu
+* sm_afr_warnings <#userid|name> - Show warnings amount for given player
+* sm_afr_reset_warnings <#userid|name> - Reset warnings amount for given player
