@@ -2,6 +2,10 @@
 
 Prevents the player from fast respawn after death when the player has changed his class.
 
+# Supported Games
+
+* Day of Defeat: Source
+
 # Pre-requirements
 
 * [morecolors](https://forums.alliedmods.net/showthread.php?t=185016)
