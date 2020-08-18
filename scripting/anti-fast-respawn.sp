@@ -14,6 +14,8 @@
 #define EVENT_PLAYER_CHANGE_CLASS "player_changeclass"
 #define EVENT_PLAYER_DEATH "player_death"
 #define EVENT_PLAYER_SPAWN "player_spawn"
+#define EVENT_ROUND_START "dod_round_start"
+#define EVENT_ROUND_WIN "dod_round_win"
 
 #define RESPAWN_THRESHOLD_MSEC 0.1
 #define MAX_TEXT_LENGHT 192
@@ -25,7 +27,7 @@ public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
     description = "Prevents the player from fast respawn after death when the player has changed his class",
-    version = "0.5.1",
+    version = "0.5.2",
     url = ""
 }
 
@@ -49,6 +51,7 @@ enum struct PlayerState {
 }
 
 static PlayerState g_playerStates[MAXPLAYERS + 1];
+static bool g_isRoundEnd = false;
 
 public void OnPluginStart() {
     LoadTranslations("common.phrases");
@@ -57,6 +60,8 @@ public void OnPluginStart() {
     HookEvent(EVENT_PLAYER_CHANGE_CLASS, Event_PlayerChangeClass);
     HookEvent(EVENT_PLAYER_DEATH, Event_PlayerDeath);
     HookEvent(EVENT_PLAYER_SPAWN, Event_PlayerSpawn);
+    HookEvent(EVENT_ROUND_START, Event_RoundStart);
+    HookEvent(EVENT_ROUND_WIN, Event_RoundWin);
 
     g_pluginEnable = CreateConVar("sm_afr_enable", "1", "Enable (1) or disable (0) plugin");
     g_maxWarnings = CreateConVar("sm_afr_max_warnings", "3", "Maximum warnings about fast respawn");
@@ -73,6 +78,10 @@ public void OnPluginStart() {
 
 public void OnPluginEnd() {
     UnhookEvent(EVENT_PLAYER_CHANGE_CLASS, Event_PlayerChangeClass);
+    UnhookEvent(EVENT_PLAYER_DEATH, Event_PlayerDeath);
+    UnhookEvent(EVENT_PLAYER_SPAWN, Event_PlayerSpawn);
+    UnhookEvent(EVENT_ROUND_START, Event_RoundStart);
+    UnhookEvent(EVENT_ROUND_WIN, Event_RoundWin);
 
     for (int i = 0; i <= MAXPLAYERS; i++) {
         g_playerStates[i].CleanUp();
@@ -104,6 +113,14 @@ public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast
     int client = GetClientOfUserId(userId);
 
     g_playerStates[client].isKilled = false;
+}
+
+public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast) {
+    g_isRoundEnd = false;
+}
+
+public void Event_RoundWin(Event event, const char[] name, bool dontBroadcast) {
+    g_isRoundEnd = true;
 }
 
 public Action Timer_Punish(Handle timer, int userId) {
@@ -270,6 +287,10 @@ void CreatePlayerInfoMenu(int client, int userId) {
 
 void CreatePunishTimer(int client) {
     if (!IsPluginEnabled()) {
+        return;
+    }
+
+    if (g_isRoundEnd) {
         return;
     }
 
