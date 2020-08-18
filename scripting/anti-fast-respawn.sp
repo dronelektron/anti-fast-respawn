@@ -1,7 +1,8 @@
 #include <sourcemod>
 #include <morecolors>
 
-#define PLUGIN_PREFIX "{cyan}[AFR] "
+#define PLUGIN_PREFIX "[AFR] "
+#define PLUGIN_PREFIX_COLOR "{cyan}"
 
 #define USAGE_PREFIX "[AFR] Usage"
 #define USAGE_COMMAND_WARNINGS "sm_afr_warnings <#userid|name>"
@@ -27,7 +28,7 @@ public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
     description = "Prevents the player from fast respawn after death when the player has changed his class",
-    version = "0.5.2",
+    version = "0.5.3",
     url = ""
 }
 
@@ -313,7 +314,7 @@ void PunishPlayer(int client) {
         char nickname[MAX_NAME_LENGTH];
 
         GetClientName(client, nickname, sizeof(nickname));
-        CPrintToChatAll("%s%t", PLUGIN_PREFIX, "Fast respawn detected", nickname, playerWarnings, maxWarnings);
+        CPrintToChatAll("%s%s%t", PLUGIN_PREFIX_COLOR, PLUGIN_PREFIX, "Fast respawn detected", nickname, playerWarnings, maxWarnings);
         LogAction(-1, -1, "%t", "Fast respawn detected", nickname, playerWarnings, maxWarnings);
         FreezePlayer(client);
     }
@@ -336,7 +337,7 @@ void PunishPlayerByType(int client) {
         int playerWarnings = g_playerStates[client].warnings;
 
         GetClientName(client, playerName, sizeof(playerName));
-        CPrintToChatAll("%s%t", PLUGIN_PREFIX, "Player is abusing fast respawn", playerName, playerWarnings);
+        CPrintToChatAll("%s%s%t", PLUGIN_PREFIX_COLOR, PLUGIN_PREFIX, "Player is abusing fast respawn", playerName, playerWarnings);
         LogAction(-1, -1, "%t", "Player is abusing fast respawn", playerName, playerWarnings);
         FreezePlayer(client);
     }
