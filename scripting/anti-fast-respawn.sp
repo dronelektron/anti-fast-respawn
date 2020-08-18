@@ -1,6 +1,7 @@
 #include <sourcemod>
+#include <morecolors>
 
-#define PLUGIN_PREFIX "[AFR] "
+#define PLUGIN_PREFIX "{cyan}[AFR] "
 
 #define USAGE_PREFIX "[AFR] Usage"
 #define USAGE_COMMAND_WARNINGS "sm_afr_warnings <#userid|name>"
@@ -11,6 +12,9 @@
 #define ITEM_SLOT_RESET_WARNINGS 1
 
 #define EVENT_PLAYER_CHANGE_CLASS "player_changeclass"
+#define EVENT_PLAYER_DEATH "player_death"
+#define EVENT_PLAYER_SPAWN "player_spawn"
+
 #define RESPAWN_THRESHOLD_MSEC 0.1
 #define MAX_TEXT_LENGHT 192
 
@@ -21,7 +25,7 @@ public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
     description = "Prevents the player from fast respawn after death when the player has changed his class",
-    version = "0.5.0",
+    version = "0.5.1",
     url = ""
 }
 
@@ -34,11 +38,13 @@ static ConVar g_banTime = null;
 enum struct PlayerState {
     Handle punishTimer;
     int warnings;
+    bool isKilled;
 
     void CleanUp() {
         delete this.punishTimer;
 
         this.warnings = 0;
+        this.isKilled = false;
     }
 }
 
@@ -49,6 +55,8 @@ public void OnPluginStart() {
     LoadTranslations("anti-fast-respawn.phrases");
 
     HookEvent(EVENT_PLAYER_CHANGE_CLASS, Event_PlayerChangeClass);
+    HookEvent(EVENT_PLAYER_DEATH, Event_PlayerDeath);
+    HookEvent(EVENT_PLAYER_SPAWN, Event_PlayerSpawn);
 
     g_pluginEnable = CreateConVar("sm_afr_enable", "1", "Enable (1) or disable (0) plugin");
     g_maxWarnings = CreateConVar("sm_afr_max_warnings", "3", "Maximum warnings about fast respawn");
@@ -59,6 +67,8 @@ public void OnPluginStart() {
     RegAdminCmd("sm_afr", Command_Menu, ADMFLAG_GENERIC);
     RegAdminCmd("sm_afr_warnings", Command_Warnings, ADMFLAG_GENERIC, USAGE_COMMAND_WARNINGS);
     RegAdminCmd("sm_afr_reset_warnings", Command_ResetWarnings, ADMFLAG_GENERIC, USAGE_COMMAND_RESET_WARNINGS);
+
+    AutoExecConfig(true, "anti-fast-respawn");
 }
 
 public void OnPluginEnd() {
@@ -77,9 +87,23 @@ public void Event_PlayerChangeClass(Event event, const char[] name, bool dontBro
     int userId = event.GetInt("userid");
     int client = GetClientOfUserId(userId);
 
-    if (IsPluginEnabled() && !IsPlayerAlive(client)) {
+    if (g_playerStates[client].isKilled) {
         CreatePunishTimer(client);
     }
+}
+
+public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast) {
+    int userId = event.GetInt("userid");
+    int client = GetClientOfUserId(userId);
+
+    g_playerStates[client].isKilled = true;
+}
+
+public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast) {
+    int userId = event.GetInt("userid");
+    int client = GetClientOfUserId(userId);
+
+    g_playerStates[client].isKilled = false;
 }
 
 public Action Timer_Punish(Handle timer, int userId) {
@@ -245,6 +269,10 @@ void CreatePlayerInfoMenu(int client, int userId) {
 }
 
 void CreatePunishTimer(int client) {
+    if (!IsPluginEnabled()) {
+        return;
+    }
+
     if (g_playerStates[client].punishTimer == null) {
         int userId = GetClientUserId(client);
 
@@ -264,7 +292,7 @@ void PunishPlayer(int client) {
         char nickname[MAX_NAME_LENGTH];
 
         GetClientName(client, nickname, sizeof(nickname));
-        PrintToChatAll("%s%t", PLUGIN_PREFIX, "Fast respawn detected", nickname, playerWarnings, maxWarnings);
+        CPrintToChatAll("%s%t", PLUGIN_PREFIX, "Fast respawn detected", nickname, playerWarnings, maxWarnings);
         LogAction(-1, -1, "%t", "Fast respawn detected", nickname, playerWarnings, maxWarnings);
         FreezePlayer(client);
     }
@@ -287,7 +315,7 @@ void PunishPlayerByType(int client) {
         int playerWarnings = g_playerStates[client].warnings;
 
         GetClientName(client, playerName, sizeof(playerName));
-        PrintToChatAll("%s%t", PLUGIN_PREFIX, "Player is abusing fast respawn", playerName, playerWarnings);
+        CPrintToChatAll("%s%t", PLUGIN_PREFIX, "Player is abusing fast respawn", playerName, playerWarnings);
         LogAction(-1, -1, "%t", "Player is abusing fast respawn", playerName, playerWarnings);
         FreezePlayer(client);
     }

@@ -2,7 +2,7 @@
 {
     "Fast respawn detected"
     {
-        "ru"    "Игрок {1} быстро возродился (Предупреждений {2}/{3})"
+        "ru"    "{default}Игрок {green}{1} {default}быстро возродился {red}(Предупреждений {2}/{3})"
     }
 
     "Fast respawn forbidden"
@@ -22,7 +22,7 @@
 
     "Player is abusing fast respawn"
     {
-        "ru"    "Игрок {1} злоупотребляет быстрым респауном (уже {2} раз(а))"
+        "ru"    "{default}Игрок {green}{1} {default}злоупотребляет быстрым респауном {red}(уже {2} раз(а))"
     }
 
     "menu"

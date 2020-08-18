@@ -3,7 +3,7 @@
     "Fast respawn detected"
     {
         "#format" "{1:s},{2:d},{3:d}"
-        "en"    "Player {1} fast respawned (Warnings {2}/{3})"
+        "en"    "{default}Player {green}{1} fast respawned {red}(Warnings {2}/{3})"
     }
 
     "Fast respawn forbidden"
@@ -26,7 +26,7 @@
     "Player is abusing fast respawn"
     {
         "#format" "{1:s},{2:d}"
-        "en"    "Player {1} is abusing fast respawn (already {2} times)"
+        "en"    "{default}Player {green}{1} {default}is abusing fast respawn {red}(already {2} times)"
     }
 
     "menu"
