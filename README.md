@@ -2,10 +2,15 @@
 
 Prevents the player from fast respawn after death when the player has changed his class.
 
+# Pre-requirements
+
+* [morecolors](https://forums.alliedmods.net/showthread.php?t=185016)
+
 # Installation
 
 * Download latest [release](https://github.com/Dron-elektron/anti-fast-respawn/releases) (compiled for SourceMod 1.10)
 * Extract "plugins" and "translations" folders to "addons/sourcemod" folder of your server
+* Put "morecolors.inc" to "addons/sourcemod/scripting/include"
 
 # Console Variables
 
