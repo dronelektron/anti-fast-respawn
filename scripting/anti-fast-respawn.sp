@@ -10,26 +10,22 @@
 #define USAGE_COMMAND_WARNINGS "sm_afr_warnings <#userid|name>"
 #define USAGE_COMMAND_RESET_WARNINGS "sm_afr_reset_warnings <#userid|name>"
 
-#define EVENT_PLAYER_CHANGE_CLASS "player_changeclass"
-#define EVENT_PLAYER_DEATH "player_death"
-#define EVENT_PLAYER_SPAWN "player_spawn"
-#define EVENT_ROUND_START "dod_round_start"
-#define EVENT_ROUND_WIN "dod_round_win"
-
 #define PLAYER_OPTION_RESET_WARNINGS "0"
+
+#define TEAM_SPECTATOR 1
 
 #define RESPAWN_THRESHOLD_MSEC 0.1
 #define MAX_TEXT_LENGHT 192
 #define COMMAND_FREEZE_FORMAT "sm_freeze #%d %d"
 
 #define PUNISH_TYPE_KICK 1
-#define PUNISH_TYPE_BAN 1
+#define PUNISH_TYPE_BAN 2
 
 public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
     description = "Prevents the player from fast respawn after death when the player has changed his class",
-    version = "0.5.6",
+    version = "0.6.0",
     url = ""
 }
 
@@ -38,15 +34,18 @@ static ConVar g_maxWarnings = null;
 static ConVar g_punishType = null;
 static ConVar g_freezeTime = null;
 static ConVar g_banTime = null;
+static ConVar g_minSpectatorTime = null;
 
 enum struct PlayerState {
     Handle punishTimer;
+    Handle spectatorTimer;
     int warnings;
     bool isKilled;
     int targetId;
 
     void CleanUp() {
         delete this.punishTimer;
+        delete this.spectatorTimer;
 
         this.warnings = 0;
         this.isKilled = false;
@@ -60,17 +59,19 @@ static bool g_isRoundEnd = false;
 public void OnPluginStart() {
     LoadTranslations("anti-fast-respawn.phrases");
 
-    HookEvent(EVENT_PLAYER_CHANGE_CLASS, Event_PlayerChangeClass);
-    HookEvent(EVENT_PLAYER_DEATH, Event_PlayerDeath);
-    HookEvent(EVENT_PLAYER_SPAWN, Event_PlayerSpawn);
-    HookEvent(EVENT_ROUND_START, Event_RoundStart);
-    HookEvent(EVENT_ROUND_WIN, Event_RoundWin);
+    HookEvent("player_changeclass", Event_PlayerChangeClass);
+    HookEvent("player_death", Event_PlayerDeath);
+    HookEvent("player_spawn", Event_PlayerSpawn);
+    HookEvent("player_team", Event_PlayerTeam);
+    HookEvent("dod_round_start", Event_RoundStart);
+    HookEvent("dod_round_win", Event_RoundWin);
 
     g_pluginEnable = CreateConVar("sm_afr_enable", "1", "Enable (1) or disable (0) plugin");
     g_maxWarnings = CreateConVar("sm_afr_max_warnings", "3", "Maximum warnings about fast respawn");
     g_punishType = CreateConVar("sm_afr_punish_type", "1", "Punish type for fast respawn (0 - freeze, 1 - kick, 2 - ban)");
-    g_freezeTime = CreateConVar("sm_afr_freeze_time", "3", "Freeze time (in seconds) due fast respawn");
+    g_freezeTime = CreateConVar("sm_afr_freeze_time", "1", "Freeze time (in seconds) due fast respawn");
     g_banTime = CreateConVar("sm_afr_ban_time", "5", "Ban time (in minutes) due fast respawn");
+    g_minSpectatorTime = CreateConVar("sm_afr_min_spectator_time", "5", "Minimum time (in seconds) in spectator team to not be punished for fast respawn");
 
     RegAdminCmd("sm_afr", Command_Menu, ADMFLAG_GENERIC);
     RegAdminCmd("sm_afr_warnings", Command_Warnings, ADMFLAG_GENERIC, USAGE_COMMAND_WARNINGS);
@@ -80,12 +81,6 @@ public void OnPluginStart() {
 }
 
 public void OnPluginEnd() {
-    UnhookEvent(EVENT_PLAYER_CHANGE_CLASS, Event_PlayerChangeClass);
-    UnhookEvent(EVENT_PLAYER_DEATH, Event_PlayerDeath);
-    UnhookEvent(EVENT_PLAYER_SPAWN, Event_PlayerSpawn);
-    UnhookEvent(EVENT_ROUND_START, Event_RoundStart);
-    UnhookEvent(EVENT_ROUND_WIN, Event_RoundWin);
-
     for (int i = 0; i <= MAXPLAYERS; i++) {
         g_playerStates[i].CleanUp();
     }
@@ -118,6 +113,20 @@ public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast
     g_playerStates[client].isKilled = false;
 }
 
+public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast) {
+    int userId = event.GetInt("userid");
+    int team = event.GetInt("team");
+    int client = GetClientOfUserId(userId);
+
+    if (team == TEAM_SPECTATOR) {
+        if (g_playerStates[client].isKilled) {
+            CreateSpectatorTimer(client);
+        }
+    } else {
+        delete g_playerStates[client].spectatorTimer;
+    }
+}
+
 public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast) {
     g_isRoundEnd = false;
 }
@@ -138,6 +147,22 @@ public Action Timer_Punish(Handle timer, int userId) {
     }
 
     g_playerStates[client].punishTimer = null;
+
+    return Plugin_Continue;
+}
+
+public Action Timer_Spectator(Handle timer, int userId) {
+    int client = GetClientOfUserId(userId);
+
+    if (client == 0) {
+        return Plugin_Stop;
+    }
+
+    if (!IsPlayerAlive(client)) {
+        g_playerStates[client].isKilled = false;
+    }
+
+    g_playerStates[client].spectatorTimer = null;
 
     return Plugin_Continue;
 }
@@ -299,11 +324,7 @@ void AddFormattedMenuItem(Menu menu, const char[] option, const char[] format, a
 }
 
 void CreatePunishTimer(int client) {
-    if (!IsPluginEnabled()) {
-        return;
-    }
-
-    if (g_isRoundEnd) {
+    if (!IsPluginEnabled() || g_isRoundEnd) {
         return;
     }
 
@@ -311,6 +332,19 @@ void CreatePunishTimer(int client) {
         int userId = GetClientUserId(client);
 
         g_playerStates[client].punishTimer = CreateTimer(RESPAWN_THRESHOLD_MSEC, Timer_Punish, userId);
+    }
+}
+
+void CreateSpectatorTimer(int client) {
+    if (!IsPluginEnabled() || g_isRoundEnd) {
+        return;
+    }
+
+    if (g_playerStates[client].spectatorTimer == null) {
+        int userId = GetClientUserId(client);
+        float minSpectatorTime = GetMinSpectatorTime();
+
+        g_playerStates[client].spectatorTimer = CreateTimer(minSpectatorTime, Timer_Spectator, userId);
     }
 }
 
@@ -382,4 +416,8 @@ int GetFreezeTime() {
 
 int GetBanTime() {
     return g_banTime.IntValue;
+}
+
+float GetMinSpectatorTime() {
+    return g_minSpectatorTime.FloatValue;
 }
