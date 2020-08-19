@@ -34,12 +34,6 @@
         "en"    "menu"
     }
 
-    "Warnings with playername"
-    {
-        "#format" "{1:d},{2:d}"
-        "en"    "Warnings: {1}/{2}"
-    }
-
     "Reset warnings"
     {
         "en"    "Reset warnings"
