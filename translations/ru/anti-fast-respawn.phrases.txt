@@ -20,14 +20,19 @@
         "ru"    "{default}Предупреждения для игрока {green}{1} {default}сброшены"
     }
 
+    "Player no longer available"
+    {
+        "ru"    "Выбранный игрок больше не доступен"
+    }
+
     "Fast respawn forbidden"
     {
         "ru"    "Быстрое возрождение запрещено"
     }
 
-    "menu"
+    "Menu"
     {
-        "ru"    "меню"
+        "ru"    "Меню"
     }
 
     "Reset warnings"

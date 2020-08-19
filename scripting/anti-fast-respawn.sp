@@ -29,7 +29,7 @@ public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
     description = "Prevents the player from fast respawn after death when the player has changed his class",
-    version = "0.5.5",
+    version = "0.5.6",
     url = ""
 }
 
@@ -58,7 +58,6 @@ static PlayerState g_playerStates[MAXPLAYERS + 1];
 static bool g_isRoundEnd = false;
 
 public void OnPluginStart() {
-    LoadTranslations("common.phrases");
     LoadTranslations("anti-fast-respawn.phrases");
 
     HookEvent(EVENT_PLAYER_CHANGE_CLASS, Event_PlayerChangeClass);
@@ -198,44 +197,59 @@ public Action Command_ResetWarnings(int client, int args) {
 }
 
 public int MenuHandler_Players(Menu menu, MenuAction action, int param1, int param2) {
-    if (action == MenuAction_Select) {
-        char userIdStr[MAX_TEXT_LENGHT];
+    switch (action) {
+        case MenuAction_Select: {
+            char userIdStr[MAX_TEXT_LENGHT];
 
-        menu.GetItem(param2, userIdStr, sizeof(userIdStr));
+            menu.GetItem(param2, userIdStr, sizeof(userIdStr));
 
-        int targetId = StringToInt(userIdStr);
+            int targetId = StringToInt(userIdStr);
 
-        CreatePlayerOptionMenu(param1, targetId);
-    } else if (action == MenuAction_End) {
-        delete menu;
+            CreatePlayerOptionMenu(param1, targetId);
+        }
+
+        case MenuAction_End: {
+            delete menu;
+        }
     }
 }
 
 public int MenuHandler_PlayerOption(Menu menu, MenuAction action, int param1, int param2) {
-    if (action == MenuAction_Select) {
-        char option[MAX_TEXT_LENGHT];
+    switch (action) {
+        case MenuAction_Select: {
+            char option[MAX_TEXT_LENGHT];
 
-        menu.GetItem(param2, option, sizeof(option));
+            menu.GetItem(param2, option, sizeof(option));
 
-        int targetId = g_playerStates[param1].targetId
-        int target = GetClientOfUserId(targetId);
+            int targetId = g_playerStates[param1].targetId
+            int target = GetClientOfUserId(targetId);
 
-        if (target == 0) {
-            CPrintToChat(param1, "%s{default}%t", PLUGIN_PREFIX_COLORED, "Player no longer available");
-        } else {
-            if (StrEqual(option, PLAYER_OPTION_RESET_WARNINGS)) {
-                ResetWarnings(param1, target);
+            if (target == 0) {
+                CPrintToChat(param1, "%s{default}%t", PLUGIN_PREFIX_COLORED, "Player no longer available");
+            } else {
+                if (StrEqual(option, PLAYER_OPTION_RESET_WARNINGS)) {
+                    ResetWarnings(param1, target);
+                }
             }
         }
-    } else if (action == MenuAction_End) {
-        delete menu;
+
+        case MenuAction_Cancel: {
+            if (param2 == MenuCancel_ExitBack) {
+                CreatePlayersMenu(param1);
+            }
+        }
+
+        case MenuAction_End: {
+            delete menu;
+        }
     }
 }
 
 void CreatePlayersMenu(int client) {
     Menu menu = new Menu(MenuHandler_Players);
 
-    SetFormattedMenuTitle(menu, "%s%T", PLUGIN_PREFIX, "menu", client);
+    menu.SetTitle("%s%T", PLUGIN_PREFIX, "Menu", client);
+
     AddPlayersToMenu(menu);
 
     menu.Display(client, MENU_TIME_FOREVER);
@@ -250,12 +264,15 @@ void CreatePlayerOptionMenu(int client, int targetId) {
         return;
     }
 
+    g_playerStates[client].targetId = targetId;
+
     Menu menu = new Menu(MenuHandler_PlayerOption);
 
-    SetFormattedMenuTitle(menu, "%N", target);
+    menu.SetTitle("%N", target);
+
     AddFormattedMenuItem(menu, PLAYER_OPTION_RESET_WARNINGS, "%T", "Reset warnings", client);
 
-    g_playerStates[client].targetId = targetId;
+    menu.ExitBackButton = true;
     menu.Display(client, MENU_TIME_FOREVER);
 }
 
@@ -272,13 +289,6 @@ void AddPlayersToMenu(Menu menu) {
         IntToString(userId, userIdStr, sizeof(userIdStr));
         AddFormattedMenuItem(menu, userIdStr, "%N (%d)", client, playerWarnings);
     }
-}
-
-void SetFormattedMenuTitle(Menu menu, const char[] format, any ...) {
-    char text[MAX_TEXT_LENGHT];
-
-    VFormat(text, sizeof(text), format, 3);
-    menu.SetTitle(text);
 }
 
 void AddFormattedMenuItem(Menu menu, const char[] option, const char[] format, any ...) {

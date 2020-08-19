@@ -24,14 +24,19 @@
         "en"    "{default}Warnings for player {green}{1} {default}are reset to zero"
     }
 
+    "Player no longer available"
+    {
+        "en"    "The player you selected is no longer available"
+    }
+
     "Fast respawn forbidden"
     {
         "en"    "Fast respawn forbidden"
     }
 
-    "menu"
+    "Menu"
     {
-        "en"    "menu"
+        "en"    "Menu"
     }
 
     "Reset warnings"
