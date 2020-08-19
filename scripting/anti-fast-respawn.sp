@@ -2,15 +2,13 @@
 #include <morecolors>
 
 #define PLUGIN_PREFIX "[AFR] "
-#define PLUGIN_PREFIX_COLOR "{cyan}"
+#define PLUGIN_PREFIX_COLORED "{cyan}[AFR] "
 
 #define USAGE_PREFIX "[AFR] Usage"
+#define USAGE_PREFIX_COLORED "{cyan}[AFR] {default}Usage"
+
 #define USAGE_COMMAND_WARNINGS "sm_afr_warnings <#userid|name>"
 #define USAGE_COMMAND_RESET_WARNINGS "sm_afr_reset_warnings <#userid|name>"
-
-#define COMMAND_FREEZE_FORMAT "sm_freeze #%d %d"
-
-#define ITEM_SLOT_RESET_WARNINGS 1
 
 #define EVENT_PLAYER_CHANGE_CLASS "player_changeclass"
 #define EVENT_PLAYER_DEATH "player_death"
@@ -18,8 +16,11 @@
 #define EVENT_ROUND_START "dod_round_start"
 #define EVENT_ROUND_WIN "dod_round_win"
 
+#define PLAYER_OPTION_RESET_WARNINGS "0"
+
 #define RESPAWN_THRESHOLD_MSEC 0.1
 #define MAX_TEXT_LENGHT 192
+#define COMMAND_FREEZE_FORMAT "sm_freeze #%d %d"
 
 #define PUNISH_TYPE_KICK 1
 #define PUNISH_TYPE_BAN 1
@@ -28,7 +29,7 @@ public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
     description = "Prevents the player from fast respawn after death when the player has changed his class",
-    version = "0.5.3",
+    version = "0.5.4",
     url = ""
 }
 
@@ -42,12 +43,14 @@ enum struct PlayerState {
     Handle punishTimer;
     int warnings;
     bool isKilled;
+    int targetId;
 
     void CleanUp() {
         delete this.punishTimer;
 
         this.warnings = 0;
         this.isKilled = false;
+        this.targetId = 0;
     }
 }
 
@@ -148,7 +151,7 @@ public Action Command_Menu(int client, int args) {
 
 public Action Command_Warnings(int client, int args) {
     if (args < 1) {
-        ReplyToCommand(client, "%s: %s", USAGE_PREFIX, USAGE_COMMAND_WARNINGS);
+        CReplyToCommand(client, "%s: %s", USAGE_PREFIX_COLORED, USAGE_COMMAND_WARNINGS);
 
         return Plugin_Handled;
     }
@@ -163,20 +166,18 @@ public Action Command_Warnings(int client, int args) {
         return Plugin_Handled;
     }
 
-    char targetName[MAX_NAME_LENGTH];
     int playerWarnings = g_playerStates[target].warnings;
     int maxWarnings = GetMaxWarnings();
 
-    GetClientName(target, targetName, sizeof(targetName));
-    ReplyToCommand(client, "%s%t", PLUGIN_PREFIX, "Warnings for player", targetName, playerWarnings, maxWarnings);
-    LogAction(client, target, "%L: %t", client, "Warnings for player", targetName, playerWarnings, maxWarnings);
+    CReplyToCommand(client, "%s%t", PLUGIN_PREFIX_COLORED, "Warnings for player", target, playerWarnings, maxWarnings);
+    LogAction(client, target, "\"%L\" checked warnings for \"%L\" (%d/%d)", client, target, playerWarnings, maxWarnings);
 
     return Plugin_Handled;
 }
 
 public Action Command_ResetWarnings(int client, int args) {
     if (args < 1) {
-        ReplyToCommand(client, "%s: %s", USAGE_PREFIX, USAGE_COMMAND_RESET_WARNINGS);
+        CReplyToCommand(client, "%s: %s", USAGE_PREFIX_COLORED, USAGE_COMMAND_RESET_WARNINGS);
 
         return Plugin_Handled;
     }
@@ -202,27 +203,27 @@ public int MenuHandler_Players(Menu menu, MenuAction action, int param1, int par
 
         menu.GetItem(param2, userIdStr, sizeof(userIdStr));
 
-        int userId = StringToInt(userIdStr);
+        int targetId = StringToInt(userIdStr);
 
-        CreatePlayerInfoMenu(param1, userId);
+        CreatePlayerOptionMenu(param1, targetId);
     } else if (action == MenuAction_End) {
         delete menu;
     }
 }
 
-public int MenuHandler_PlayerInfo(Menu menu, MenuAction action, int param1, int param2) {
+public int MenuHandler_PlayerOption(Menu menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_Select) {
-        if (param2 == ITEM_SLOT_RESET_WARNINGS) {
-            char userIdStr[MAX_TEXT_LENGHT];
+        char option[MAX_TEXT_LENGHT];
 
-            menu.GetItem(param2, userIdStr, sizeof(userIdStr));
+        menu.GetItem(param2, option, sizeof(option));
 
-            int userId = StringToInt(userIdStr);
-            int target = GetClientOfUserId(userId);
+        int targetId = g_playerStates[param1].targetId
+        int target = GetClientOfUserId(targetId);
 
-            if (target == 0) {
-                PrintToChat(param1, "%s%t", PLUGIN_PREFIX, "Player no longer available");
-            } else {
+        if (target == 0) {
+            CPrintToChat(param1, "%s{default}%t", PLUGIN_PREFIX_COLORED, "Player no longer available");
+        } else {
+            if (StrEqual(option, PLAYER_OPTION_RESET_WARNINGS)) {
                 ResetWarnings(param1, target);
             }
         }
@@ -233,57 +234,58 @@ public int MenuHandler_PlayerInfo(Menu menu, MenuAction action, int param1, int 
 
 void CreatePlayersMenu(int client) {
     Menu menu = new Menu(MenuHandler_Players);
-    char title[MAX_TEXT_LENGHT];
 
-    Format(title, sizeof(title), "%s %T", PLUGIN_PREFIX, "menu", client);
-
-    menu.SetTitle(title);
-
-    for (int i = 1; i <= MaxClients; i++) {
-        if (!IsClientConnected(i)) {
-            continue;
-        }
-
-        int userId = GetClientUserId(i);
-        char userIdStr[MAX_NAME_LENGTH];
-        char clientName[MAX_NAME_LENGTH];
-
-        IntToString(userId, userIdStr, sizeof(userIdStr));
-        GetClientName(i, clientName, sizeof(clientName));
-
-        menu.AddItem(userIdStr, clientName);
-    }
+    SetFormattedMenuTitle(menu, "%s%T", PLUGIN_PREFIX, "menu", client);
+    AddPlayersToMenu(menu);
 
     menu.Display(client, MENU_TIME_FOREVER);
 }
 
-void CreatePlayerInfoMenu(int client, int userId) {
-    int target = GetClientOfUserId(userId);
+void CreatePlayerOptionMenu(int client, int targetId) {
+    int target = GetClientOfUserId(targetId);
 
     if (target == 0) {
+        CPrintToChat(client, "%s{default}%t", PLUGIN_PREFIX_COLORED, "Player no longer available");
+
         return;
     }
 
-    Menu menu = new Menu(MenuHandler_PlayerInfo);
-    char targetName[MAX_NAME_LENGTH];
+    Menu menu = new Menu(MenuHandler_PlayerOption);
 
-    GetClientName(target, targetName, sizeof(targetName));
+    SetFormattedMenuTitle(menu, "%N", target);
+    AddFormattedMenuItem(menu, PLAYER_OPTION_RESET_WARNINGS, "%T", "Reset warnings", client);
 
-    menu.SetTitle(targetName);
-
-    char userIdStr[MAX_TEXT_LENGHT];
-    char warningsItem[MAX_TEXT_LENGHT];
-    char resetWarnings[MAX_TEXT_LENGHT];
-    int playerWarnings = g_playerStates[target].warnings;
-    int maxWarnings = GetMaxWarnings();
-
-    Format(warningsItem, sizeof(warningsItem), "%T", "Warnings", client, playerWarnings, maxWarnings);
-    Format(resetWarnings, sizeof(resetWarnings), "%T", "Reset warnings", client);
-    IntToString(userId, userIdStr, sizeof(userIdStr));
-
-    menu.AddItem("Warnings", warningsItem, ITEMDRAW_DISABLED);
-    menu.AddItem(userIdStr, resetWarnings);
+    g_playerStates[client].targetId = targetId;
     menu.Display(client, MENU_TIME_FOREVER);
+}
+
+void AddPlayersToMenu(Menu menu) {
+    for (int client = 1; client <= MaxClients; client++) {
+        if (!IsClientConnected(client)) {
+            continue;
+        }
+
+        int userId = GetClientUserId(client);
+        char userIdStr[MAX_NAME_LENGTH];
+        int playerWarnings = g_playerStates[client].warnings;
+
+        IntToString(userId, userIdStr, sizeof(userIdStr));
+        AddFormattedMenuItem(menu, userIdStr, "%N (%d)", client, playerWarnings);
+    }
+}
+
+void SetFormattedMenuTitle(Menu menu, const char[] format, any ...) {
+    char text[MAX_TEXT_LENGHT];
+
+    VFormat(text, sizeof(text), format, 3);
+    menu.SetTitle(text);
+}
+
+void AddFormattedMenuItem(Menu menu, const char[] option, const char[] format, any ...) {
+    char text[MAX_TEXT_LENGHT];
+
+    VFormat(text, sizeof(text), format, 4);
+    menu.AddItem(option, text);
 }
 
 void CreatePunishTimer(int client) {
@@ -311,11 +313,8 @@ void PunishPlayer(int client) {
     if (playerWarnings > maxWarnings) {
         PunishPlayerByType(client);
     } else {
-        char nickname[MAX_NAME_LENGTH];
-
-        GetClientName(client, nickname, sizeof(nickname));
-        CPrintToChatAll("%s%s%t", PLUGIN_PREFIX_COLOR, PLUGIN_PREFIX, "Fast respawn detected", nickname, playerWarnings, maxWarnings);
-        LogAction(-1, -1, "%t", "Fast respawn detected", nickname, playerWarnings, maxWarnings);
+        CPrintToChatAll("%s%t", PLUGIN_PREFIX_COLORED, "Fast respawn detected", client, playerWarnings, maxWarnings);
+        LogAction(-1, -1, "\"%L\" fast respawned (%d/%d)", client, playerWarnings, maxWarnings);
         FreezePlayer(client);
     }
 }
@@ -333,12 +332,10 @@ void PunishPlayerByType(int client) {
 
         BanClient(client, banTime, BANFLAG_AUTHID, reason, reason);
     } else {
-        char playerName[MAX_NAME_LENGTH];
         int playerWarnings = g_playerStates[client].warnings;
 
-        GetClientName(client, playerName, sizeof(playerName));
-        CPrintToChatAll("%s%s%t", PLUGIN_PREFIX_COLOR, PLUGIN_PREFIX, "Player is abusing fast respawn", playerName, playerWarnings);
-        LogAction(-1, -1, "%t", "Player is abusing fast respawn", playerName, playerWarnings);
+        CPrintToChatAll("%s%t", PLUGIN_PREFIX_COLORED, "Player is abusing fast respawn", client, playerWarnings);
+        LogAction(-1, -1, "\"%L\" is abusing fast respawn (%d times)", client, playerWarnings);
         FreezePlayer(client);
     }
 }
@@ -351,11 +348,8 @@ void FreezePlayer(int client) {
 }
 
 void ResetWarnings(int client, int target) {
-    char targetName[MAX_NAME_LENGTH];
-
-    GetClientName(target, targetName, sizeof(targetName));
-    ShowActivity2(client, PLUGIN_PREFIX, "%t", "Warnings for the player are reset to zero", targetName);
-    LogAction(client, target, "%L: %t", client, "Warnings for the player are reset to zero", targetName);
+    CPrintToChatAll("%s%t", PLUGIN_PREFIX_COLORED, "Warnings for the player are reset to zero", target);
+    LogAction(client, target, "\"%L\" reset warnings for \"%L\"", client, target);
 
     g_playerStates[target].warnings = 0;
 }

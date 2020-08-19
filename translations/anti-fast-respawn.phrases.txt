@@ -2,8 +2,26 @@
 {
     "Fast respawn detected"
     {
-        "#format" "{1:s},{2:d},{3:d}"
+        "#format" "{1:N},{2:d},{3:d}"
         "en"    "{default}Player {green}{1} fast respawned {red}(Warnings {2}/{3})"
+    }
+
+    "Player is abusing fast respawn"
+    {
+        "#format" "{1:N},{2:d}"
+        "en"    "{default}Player {green}{1} {default}is abusing fast respawn {red}(already {2} times)"
+    }
+
+    "Warnings for player"
+    {
+        "#format" "{1:N},{2:d},{3:d}"
+        "en"    "{default}Warnings for player {green}{1}{default}: {red}{2}/{3}"
+    }
+
+    "Warnings for the player are reset to zero"
+    {
+        "#format" "{1:N}"
+        "en"    "{default}Warnings for player {green}{1} {default}are reset to zero"
     }
 
     "Fast respawn forbidden"
@@ -11,30 +29,12 @@
         "en"    "Fast respawn forbidden"
     }
 
-    "Warnings for player"
-    {
-        "#format" "{1:s},{2:d},{3:d}"
-        "en"    "Warnings for player {1}: {2}/{3}"
-    }
-
-    "Warnings for the player are reset to zero"
-    {
-        "#format" "{1:s}"
-        "en"    "Warnings for player {1} are reset to zero"
-    }
-
-    "Player is abusing fast respawn"
-    {
-        "#format" "{1:s},{2:d}"
-        "en"    "{default}Player {green}{1} {default}is abusing fast respawn {red}(already {2} times)"
-    }
-
     "menu"
     {
         "en"    "menu"
     }
 
-    "Warnings"
+    "Warnings with playername"
     {
         "#format" "{1:d},{2:d}"
         "en"    "Warnings: {1}/{2}"

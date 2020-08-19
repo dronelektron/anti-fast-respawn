@@ -5,24 +5,24 @@
         "ru"    "{default}Игрок {green}{1} {default}быстро возродился {red}(Предупреждений {2}/{3})"
     }
 
-    "Fast respawn forbidden"
+    "Player is abusing fast respawn"
     {
-        "ru"    "Быстрое возрождение запрещено"
+        "ru"    "{default}Игрок {green}{1} {default}злоупотребляет быстрым респауном {red}(уже {2} раз(а))"
     }
 
     "Warnings for player"
     {
-        "ru"    "Предупреждений для игрока {1}: {2}/{3}"
+        "ru"    "{default}Предупреждений для игрока {green}{1}{default}: {red}{2}/{3}"
     }
 
     "Warnings for the player are reset to zero"
     {
-        "ru"    "Предупреждения для игрока {1} обнулены"
+        "ru"    "{default}Предупреждения для игрока {green}{1} {default}сброшены"
     }
 
-    "Player is abusing fast respawn"
+    "Fast respawn forbidden"
     {
-        "ru"    "{default}Игрок {green}{1} {default}злоупотребляет быстрым респауном {red}(уже {2} раз(а))"
+        "ru"    "Быстрое возрождение запрещено"
     }
 
     "menu"
