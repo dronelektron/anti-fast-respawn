@@ -4,7 +4,6 @@
 #define PLUGIN_PREFIX "[AFR] "
 #define PLUGIN_PREFIX_COLORED "{cyan}[AFR] "
 
-#define USAGE_PREFIX "[AFR] Usage"
 #define USAGE_PREFIX_COLORED "{cyan}[AFR] {default}Usage"
 
 #define USAGE_COMMAND_WARNINGS "sm_afr_warnings <#userid|name>"
@@ -25,7 +24,7 @@ public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
     description = "Prevents the player from fast respawn after death when the player has changed his class",
-    version = "0.6.0",
+    version = "0.6.1",
     url = ""
 }
 
@@ -250,7 +249,7 @@ public int MenuHandler_PlayerOption(Menu menu, MenuAction action, int param1, in
             int target = GetClientOfUserId(targetId);
 
             if (target == 0) {
-                CPrintToChat(param1, "%s{default}%t", PLUGIN_PREFIX_COLORED, "Player no longer available");
+                CPrintToChat(param1, "%s%t", PLUGIN_PREFIX_COLORED, "Player no longer available");
             } else {
                 if (StrEqual(option, PLAYER_OPTION_RESET_WARNINGS)) {
                     ResetWarnings(param1, target);
@@ -284,7 +283,7 @@ void CreatePlayerOptionMenu(int client, int targetId) {
     int target = GetClientOfUserId(targetId);
 
     if (target == 0) {
-        CPrintToChat(client, "%s{default}%t", PLUGIN_PREFIX_COLORED, "Player no longer available");
+        CPrintToChat(client, "%s%t", PLUGIN_PREFIX_COLORED, "Player no longer available");
 
         return;
     }

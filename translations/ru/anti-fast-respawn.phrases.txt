@@ -22,7 +22,7 @@
 
     "Player no longer available"
     {
-        "ru"    "Выбранный игрок больше не доступен"
+        "ru"    "{default}Выбранный игрок больше не доступен"
     }
 
     "Fast respawn forbidden"

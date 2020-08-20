@@ -3,7 +3,7 @@
     "Fast respawn detected"
     {
         "#format" "{1:N},{2:d},{3:d}"
-        "en"    "{default}Player {green}{1} fast respawned {red}(Warnings {2}/{3})"
+        "en"    "{default}Player {green}{1} {default}fast respawned {red}(Warnings {2}/{3})"
     }
 
     "Player is abusing fast respawn"
@@ -26,7 +26,7 @@
 
     "Player no longer available"
     {
-        "en"    "The player you selected is no longer available"
+        "en"    "{default}The player you selected is no longer available"
     }
 
     "Fast respawn forbidden"
