@@ -20,6 +20,11 @@
         "ru"    "{default}Предупреждения для игрока {green}{1} {default}сброшены"
     }
 
+    "Anti fast respawn advice"
+    {
+        "ru"    "{default}Если вы умерли {green}рядом с респауном{default}, то лучше {green}сменить класс{default}, когда вы {green}живы"
+    }
+
     "Player no longer available"
     {
         "ru"    "{default}Выбранный игрок больше не доступен"

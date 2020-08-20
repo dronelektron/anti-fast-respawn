@@ -24,6 +24,11 @@
         "en"    "{default}Warnings for player {green}{1} {default}are reset to zero"
     }
 
+    "Anti fast respawn advice"
+    {
+        "en"    "{default}If you died {green}near a respawn{default}, it is better to {green}change the class {default}when you are {green}alive"
+    }
+
     "Player no longer available"
     {
         "en"    "{default}The player you selected is no longer available"

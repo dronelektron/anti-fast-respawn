@@ -24,7 +24,7 @@ public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
     description = "Prevents the player from fast respawn after death when the player has changed his class",
-    version = "0.6.1",
+    version = "0.7.0",
     url = ""
 }
 
@@ -357,6 +357,7 @@ void PunishPlayer(int client) {
         PunishPlayerByType(client);
     } else {
         CPrintToChatAll("%s%t", PLUGIN_PREFIX_COLORED, "Fast respawn detected", client, playerWarnings, maxWarnings);
+        CPrintToChat(client, "%s%t", PLUGIN_PREFIX_COLORED, "Anti fast respawn advice");
         LogAction(-1, -1, "\"%L\" fast respawned (%d/%d)", client, playerWarnings, maxWarnings);
         FreezePlayer(client);
     }
