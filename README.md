@@ -1,6 +1,6 @@
 # Anti Fast Respawn
 
-Prevents the player from fast respawn after death when the player has changed his class.
+Prevents a player from fast respawn if player changed his class near respawn.
 
 ### Supported Games
 

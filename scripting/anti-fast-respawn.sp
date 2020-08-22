@@ -12,6 +12,8 @@
 #define PLAYER_OPTION_RESET_WARNINGS "0"
 
 #define TEAM_SPECTATOR 1
+#define TEAM_ALLIES 2
+#define TEAM_AXIS 3
 
 #define RESPAWN_THRESHOLD_MSEC 0.1
 #define MAX_TEXT_LENGHT 192
@@ -23,8 +25,8 @@
 public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
-    description = "Prevents the player from fast respawn after death when the player has changed his class",
-    version = "0.7.0",
+    description = "Prevents a player from fast respawn if player changed his class near respawn",
+    version = "0.7.1",
     url = ""
 }
 
@@ -40,6 +42,7 @@ enum struct PlayerState {
     Handle spectatorTimer;
     int warnings;
     bool isKilled;
+    int lastTeam;
     int targetId;
 
     void CleanUp() {
@@ -48,6 +51,7 @@ enum struct PlayerState {
 
         this.warnings = 0;
         this.isKilled = false;
+        this.lastTeam = 0;
         this.targetId = 0;
     }
 }
@@ -123,6 +127,16 @@ public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast)
         }
     } else {
         delete g_playerStates[client].spectatorTimer;
+
+        int oldTeam = g_playerStates[client].lastTeam;
+        bool alliesToAxis = oldTeam == TEAM_ALLIES && team == TEAM_AXIS;
+        bool axisToAllies = oldTeam == TEAM_AXIS && team == TEAM_ALLIES;
+
+        if (alliesToAxis || axisToAllies) {
+            g_playerStates[client].isKilled = false;
+        }
+
+        g_playerStates[client].lastTeam = team;
     }
 }
 
