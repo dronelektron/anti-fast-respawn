@@ -1,4 +1,5 @@
 #include <sourcemod>
+#include <sdktools>
 #include <morecolors>
 
 #define PLUGIN_PREFIX "[AFR] "
@@ -26,7 +27,7 @@ public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
     description = "Prevents a player from fast respawn if player changed his class near respawn",
-    version = "0.7.1",
+    version = "0.8.0",
     url = ""
 }
 
@@ -36,6 +37,7 @@ static ConVar g_punishType = null;
 static ConVar g_freezeTime = null;
 static ConVar g_banTime = null;
 static ConVar g_minSpectatorTime = null;
+static ConVar g_minActivePlayers = null;
 
 enum struct PlayerState {
     Handle punishTimer;
@@ -75,6 +77,7 @@ public void OnPluginStart() {
     g_freezeTime = CreateConVar("sm_afr_freeze_time", "1", "Freeze time (in seconds) due fast respawn");
     g_banTime = CreateConVar("sm_afr_ban_time", "5", "Ban time (in minutes) due fast respawn");
     g_minSpectatorTime = CreateConVar("sm_afr_min_spectator_time", "5", "Minimum time (in seconds) in spectator team to not be punished for fast respawn");
+    g_minActivePlayers = CreateConVar("sm_afr_min_active_players", "4", "Minimum amount of active players to enable protection");
 
     RegAdminCmd("sm_afr", Command_Menu, ADMFLAG_GENERIC);
     RegAdminCmd("sm_afr_warnings", Command_Warnings, ADMFLAG_GENERIC, USAGE_COMMAND_WARNINGS);
@@ -337,7 +340,7 @@ void AddFormattedMenuItem(Menu menu, const char[] option, const char[] format, a
 }
 
 void CreatePunishTimer(int client) {
-    if (!IsPluginEnabled() || g_isRoundEnd) {
+    if (!IsProtectionEnabled()) {
         return;
     }
 
@@ -349,7 +352,7 @@ void CreatePunishTimer(int client) {
 }
 
 void CreateSpectatorTimer(int client) {
-    if (!IsPluginEnabled() || g_isRoundEnd) {
+    if (!IsProtectionEnabled()) {
         return;
     }
 
@@ -412,6 +415,25 @@ void ResetWarnings(int client, int target) {
     g_playerStates[target].warnings = 0;
 }
 
+bool IsProtectionEnabled() {
+    if (!IsPluginEnabled() || g_isRoundEnd) {
+        return false;
+    }
+
+    int activePlayers = GetActivePlayers();
+    int minActivePlayers = GetMinActivePlayers();
+
+    if (activePlayers < minActivePlayers) {
+        return false;
+    }
+
+    return true;
+}
+
+int GetActivePlayers() {
+    return GetTeamClientCount(TEAM_ALLIES) + GetTeamClientCount(TEAM_AXIS);
+}
+
 bool IsPluginEnabled() {
     return g_pluginEnable.IntValue == 1;
 }
@@ -434,4 +456,8 @@ int GetBanTime() {
 
 float GetMinSpectatorTime() {
     return g_minSpectatorTime.FloatValue;
+}
+
+int GetMinActivePlayers() {
+    return g_minActivePlayers.IntValue;
 }

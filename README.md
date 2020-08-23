@@ -24,6 +24,7 @@ Prevents a player from fast respawn if player changed his class near respawn.
 * sm_afr_freeze_time - Freeze time (in seconds) due fast respawn [default: "1"]
 * sm_afr_ban_time - Ban time (in minutes) due fast respawn [default: "5"]
 * sm_afr_min_spectator_time - Minimum time (in seconds) in spectator team to not be punished for fast respawn [default: "5"]
+* sm_afr_min_active_players - Minimum amount of active players to enable protection [default: "4"]
 
 ### Console Commands
 
