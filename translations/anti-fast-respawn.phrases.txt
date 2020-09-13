@@ -34,6 +34,18 @@
         "en"    "{default}The player you selected is no longer available"
     }
 
+    "Removed warning"
+    {
+        "#format" "{1:N}"
+        "en"    "{default}Removed one warning for player {green}{1}"
+    }
+
+    "Player no longer has a warnings"
+    {
+        "#format" "{1:N}"
+        "en"    "{default}The player {green}{1} {default}no longer has a warnings"
+    }
+
     "Fast respawn forbidden"
     {
         "en"    "Fast respawn forbidden"
@@ -47,5 +59,10 @@
     "Reset warnings"
     {
         "en"    "Reset warnings"
+    }
+
+    "Remove warning"
+    {
+        "en"    "Remove one warning"
     }
 }

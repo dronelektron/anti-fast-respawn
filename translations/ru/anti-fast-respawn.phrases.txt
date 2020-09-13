@@ -30,6 +30,16 @@
         "ru"    "{default}Выбранный игрок больше не доступен"
     }
 
+    "Removed warning"
+    {
+        "ru"    "{default}Удалено одно предупреждение для игрока {green}{1}"
+    }
+
+    "Player no longer has a warnings"
+    {
+        "ru"    "{default}У игрока {green}{1} {default}больше нет предупреждений"
+    }
+
     "Fast respawn forbidden"
     {
         "ru"    "Быстрое возрождение запрещено"
@@ -43,5 +53,10 @@
     "Reset warnings"
     {
         "ru"    "Сбросить предупреждения"
+    }
+
+    "Remove warning"
+    {
+        "ru"    "Удалить одно предупреждение"
     }
 }

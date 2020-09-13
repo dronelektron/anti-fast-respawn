@@ -11,6 +11,7 @@
 #define USAGE_COMMAND_RESET_WARNINGS "sm_afr_reset_warnings <#userid|name>"
 
 #define PLAYER_OPTION_RESET_WARNINGS "0"
+#define PLAYER_OPTION_REMOVE_WARNING "1"
 
 #define TEAM_SPECTATOR 1
 #define TEAM_ALLIES 2
@@ -27,7 +28,7 @@ public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
     description = "Prevents a player from fast respawn if player changed his class near respawn",
-    version = "0.8.0",
+    version = "0.9.0",
     url = ""
 }
 
@@ -184,7 +185,11 @@ public Action Timer_Spectator(Handle timer, int userId) {
 }
 
 public Action Command_Menu(int client, int args) {
-    CreatePlayersMenu(client);
+    if (client > 0 && args < 1) {
+        CreatePlayersMenu(client);
+    } else {
+        PrintToServer("%s%s", PLUGIN_PREFIX, "Menu is not supported for console");
+    }
 
     return Plugin_Handled;
 }
@@ -270,6 +275,8 @@ public int MenuHandler_PlayerOption(Menu menu, MenuAction action, int param1, in
             } else {
                 if (StrEqual(option, PLAYER_OPTION_RESET_WARNINGS)) {
                     ResetWarnings(param1, target);
+                } else if (StrEqual(option, PLAYER_OPTION_REMOVE_WARNING)) {
+                    RemoveWarning(param1, target);
                 }
             }
         }
@@ -308,10 +315,18 @@ void CreatePlayerOptionMenu(int client, int targetId) {
     g_playerStates[client].targetId = targetId;
 
     Menu menu = new Menu(MenuHandler_PlayerOption);
+    int style;
 
     menu.SetTitle("%N", target);
 
-    AddFormattedMenuItem(menu, PLAYER_OPTION_RESET_WARNINGS, "%T", "Reset warnings", client);
+    if (g_playerStates[target].warnings > 0) {
+        style = ITEMDRAW_DEFAULT;
+    } else {
+        style = ITEMDRAW_DISABLED;
+    }
+
+    AddFormattedMenuItem(menu, style, PLAYER_OPTION_RESET_WARNINGS, "%T", "Reset warnings", client);
+    AddFormattedMenuItem(menu, style, PLAYER_OPTION_REMOVE_WARNING, "%T", "Remove warning", client);
 
     menu.ExitBackButton = true;
     menu.Display(client, MENU_TIME_FOREVER);
@@ -328,15 +343,15 @@ void AddPlayersToMenu(Menu menu) {
         int playerWarnings = g_playerStates[client].warnings;
 
         IntToString(userId, userIdStr, sizeof(userIdStr));
-        AddFormattedMenuItem(menu, userIdStr, "%N (%d)", client, playerWarnings);
+        AddFormattedMenuItem(menu, ITEMDRAW_DEFAULT, userIdStr, "%N (%d)", client, playerWarnings);
     }
 }
 
-void AddFormattedMenuItem(Menu menu, const char[] option, const char[] format, any ...) {
+void AddFormattedMenuItem(Menu menu, int style, const char[] option, const char[] format, any ...) {
     char text[MAX_TEXT_LENGHT];
 
-    VFormat(text, sizeof(text), format, 4);
-    menu.AddItem(option, text);
+    VFormat(text, sizeof(text), format, 5);
+    menu.AddItem(option, text, style);
 }
 
 void CreatePunishTimer(int client) {
@@ -409,10 +424,27 @@ void FreezePlayer(int client) {
 }
 
 void ResetWarnings(int client, int target) {
-    CPrintToChatAll("%s%t", PLUGIN_PREFIX_COLORED, "Warnings for the player are reset to zero", target);
-    LogAction(client, target, "\"%L\" reset warnings for \"%L\"", client, target);
+    if (g_playerStates[target].warnings == 0) {
+        CReplyToCommand(client, "%s%t", PLUGIN_PREFIX_COLORED, "Player no longer has a warnings", target);
+        LogAction(client, target, "\"%L\" tried to reset warnings for \"%L\"", client, target);
+    } else {
+        CPrintToChatAll("%s%t", PLUGIN_PREFIX_COLORED, "Warnings for the player are reset to zero", target);
+        LogAction(client, target, "\"%L\" reset warnings for \"%L\"", client, target);
 
-    g_playerStates[target].warnings = 0;
+        g_playerStates[target].warnings = 0;
+    }
+}
+
+void RemoveWarning(int client, int target) {
+    if (g_playerStates[target].warnings == 0) {
+        CReplyToCommand(client, "%s%t", PLUGIN_PREFIX_COLORED, "Player no longer has a warnings", target);
+        LogAction(client, target, "\"%L\" tried to remove one warning for \"%L\"", client, target);
+    } else {
+        CPrintToChatAll("%s%t", PLUGIN_PREFIX_COLORED, "Removed warning", target);
+        LogAction(client, target, "\"%L\" removed one warning for \"%L\"", client, target);
+
+        g_playerStates[target].warnings--;
+    }
 }
 
 bool IsProtectionEnabled() {
