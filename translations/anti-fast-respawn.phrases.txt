@@ -26,7 +26,7 @@
 
     "Anti fast respawn advice"
     {
-        "en"    "{default}If you died {green}near a respawn{default}, it is better to {green}change the class {default}when you are {green}alive"
+        "en"    "{default}If you died near the respawn zone then change your class only when you are alive"
     }
 
     "Player no longer available"
@@ -40,10 +40,10 @@
         "en"    "{default}Removed one warning for player {green}{1}"
     }
 
-    "Player no longer has a warnings"
+    "Player has no warnings"
     {
         "#format" "{1:N}"
-        "en"    "{default}The player {green}{1} {default}no longer has a warnings"
+        "en"    "{default}The player {green}{1} {default}has no warnings"
     }
 
     "Fast respawn forbidden"

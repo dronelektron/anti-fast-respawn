@@ -22,7 +22,7 @@
 
     "Anti fast respawn advice"
     {
-        "ru"    "{default}Если вы умерли {green}рядом с респауном{default}, то лучше {green}сменить класс{default}, когда вы {green}живы"
+        "ru"    "{default}Если вы умерли рядом с зоной возрождения, то меняйте свой класс только тогда когда вы живы"
     }
 
     "Player no longer available"
@@ -35,9 +35,9 @@
         "ru"    "{default}Удалено одно предупреждение для игрока {green}{1}"
     }
 
-    "Player no longer has a warnings"
+    "Player has no warnings"
     {
-        "ru"    "{default}У игрока {green}{1} {default}больше нет предупреждений"
+        "ru"    "{default}У игрока {green}{1} {default}нет предупреждений"
     }
 
     "Fast respawn forbidden"

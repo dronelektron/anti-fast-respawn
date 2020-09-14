@@ -9,6 +9,7 @@
 
 #define USAGE_COMMAND_WARNINGS "sm_afr_warnings <#userid|name>"
 #define USAGE_COMMAND_RESET_WARNINGS "sm_afr_reset_warnings <#userid|name>"
+#define USAGE_COMMAND_REMOVE_WARNING "sm_afr_remove_warning <#userid|name>"
 
 #define PLAYER_OPTION_RESET_WARNINGS "0"
 #define PLAYER_OPTION_REMOVE_WARNING "1"
@@ -27,8 +28,8 @@
 public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
-    description = "Prevents a player from fast respawn if player changed his class near respawn",
-    version = "0.9.0",
+    description = "Prevents fast respawn if a player has changed his class after death near respawn zone",
+    version = "0.10.0",
     url = ""
 }
 
@@ -83,6 +84,7 @@ public void OnPluginStart() {
     RegAdminCmd("sm_afr", Command_Menu, ADMFLAG_GENERIC);
     RegAdminCmd("sm_afr_warnings", Command_Warnings, ADMFLAG_GENERIC, USAGE_COMMAND_WARNINGS);
     RegAdminCmd("sm_afr_reset_warnings", Command_ResetWarnings, ADMFLAG_GENERIC, USAGE_COMMAND_RESET_WARNINGS);
+    RegAdminCmd("sm_afr_remove_warning", Command_RemoveWarning, ADMFLAG_GENERIC, USAGE_COMMAND_REMOVE_WARNING);
 
     AutoExecConfig(true, "anti-fast-respawn");
 }
@@ -238,6 +240,28 @@ public Action Command_ResetWarnings(int client, int args) {
     }
 
     ResetWarnings(client, target);
+
+    return Plugin_Handled;
+}
+
+public Action Command_RemoveWarning(int client, int args) {
+    if (args < 1) {
+        CReplyToCommand(client, "%s: %s", USAGE_PREFIX_COLORED, USAGE_COMMAND_REMOVE_WARNING);
+
+        return Plugin_Handled;
+    }
+
+    char name[MAX_NAME_LENGTH];
+
+    GetCmdArg(1, name, sizeof(name));
+
+    int target = FindTarget(client, name);
+
+    if (target == -1) {
+        return Plugin_Handled;
+    }
+
+    RemoveWarning(client, target);
 
     return Plugin_Handled;
 }
@@ -425,7 +449,7 @@ void FreezePlayer(int client) {
 
 void ResetWarnings(int client, int target) {
     if (g_playerStates[target].warnings == 0) {
-        CReplyToCommand(client, "%s%t", PLUGIN_PREFIX_COLORED, "Player no longer has a warnings", target);
+        CReplyToCommand(client, "%s%t", PLUGIN_PREFIX_COLORED, "Player has no warnings", target);
         LogAction(client, target, "\"%L\" tried to reset warnings for \"%L\"", client, target);
     } else {
         CPrintToChatAll("%s%t", PLUGIN_PREFIX_COLORED, "Warnings for the player are reset to zero", target);
@@ -437,7 +461,7 @@ void ResetWarnings(int client, int target) {
 
 void RemoveWarning(int client, int target) {
     if (g_playerStates[target].warnings == 0) {
-        CReplyToCommand(client, "%s%t", PLUGIN_PREFIX_COLORED, "Player no longer has a warnings", target);
+        CReplyToCommand(client, "%s%t", PLUGIN_PREFIX_COLORED, "Player has no warnings", target);
         LogAction(client, target, "\"%L\" tried to remove one warning for \"%L\"", client, target);
     } else {
         CPrintToChatAll("%s%t", PLUGIN_PREFIX_COLORED, "Removed warning", target);
