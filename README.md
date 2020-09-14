@@ -31,3 +31,4 @@ Prevents fast respawn if a player has changed his class after death near respawn
 * sm_afr - Show AFR menu
 * sm_afr_warnings <#userid|name> - Show warnings amount for given player
 * sm_afr_reset_warnings <#userid|name> - Reset warnings amount for given player
+* sm_afr_remove_warning <#userid|name> - Remove one warning for given player
