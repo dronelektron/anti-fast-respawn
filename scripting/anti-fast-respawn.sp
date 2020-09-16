@@ -5,7 +5,10 @@
 #define PLUGIN_PREFIX "[AFR] "
 #define PLUGIN_PREFIX_COLORED "{cyan}[AFR] "
 
-#define USAGE_PREFIX_COLORED "{cyan}[AFR] {default}Usage"
+#define USAGE_PREFIX_COLORED "{cyan}[AFR] {default}Usage: "
+
+#define LOG_PREFIX_WARNINGS_SAVE "Warnings not saved: "
+#define LOG_PREFIX_WARNINGS_LOAD "Warnings not loaded: "
 
 #define USAGE_COMMAND_WARNINGS "sm_afr_warnings <#userid|name>"
 #define USAGE_COMMAND_RESET_WARNINGS "sm_afr_reset_warnings <#userid|name>"
@@ -20,6 +23,7 @@
 
 #define RESPAWN_THRESHOLD_MSEC 0.1
 #define MAX_TEXT_LENGHT 192
+#define MAX_AUTH_ID_LENGHT 65
 #define COMMAND_FREEZE_FORMAT "sm_freeze #%d %d"
 
 #define PUNISH_TYPE_KICK 1
@@ -29,17 +33,18 @@ public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
     description = "Prevents fast respawn if a player has changed his class after death near respawn zone",
-    version = "0.10.0",
+    version = "0.11.0",
     url = ""
 }
 
-static ConVar g_pluginEnable = null;
+static ConVar g_enablePlugin = null;
 static ConVar g_maxWarnings = null;
 static ConVar g_punishType = null;
 static ConVar g_freezeTime = null;
 static ConVar g_banTime = null;
 static ConVar g_minSpectatorTime = null;
 static ConVar g_minActivePlayers = null;
+static ConVar g_enableWarningsSave = null;
 
 enum struct PlayerState {
     Handle punishTimer;
@@ -62,6 +67,7 @@ enum struct PlayerState {
 
 static PlayerState g_playerStates[MAXPLAYERS + 1];
 static bool g_isRoundEnd = false;
+static StringMap g_savedWarnings = null;
 
 public void OnPluginStart() {
     LoadTranslations("anti-fast-respawn.phrases");
@@ -73,13 +79,15 @@ public void OnPluginStart() {
     HookEvent("dod_round_start", Event_RoundStart);
     HookEvent("dod_round_win", Event_RoundWin);
 
-    g_pluginEnable = CreateConVar("sm_afr_enable", "1", "Enable (1) or disable (0) plugin");
+    g_enablePlugin = CreateConVar("sm_afr_enable", "1", "Enable (1) or disable (0) plugin");
     g_maxWarnings = CreateConVar("sm_afr_max_warnings", "3", "Maximum warnings about fast respawn");
     g_punishType = CreateConVar("sm_afr_punish_type", "1", "Punish type for fast respawn (0 - freeze, 1 - kick, 2 - ban)");
     g_freezeTime = CreateConVar("sm_afr_freeze_time", "1", "Freeze time (in seconds) due fast respawn");
     g_banTime = CreateConVar("sm_afr_ban_time", "5", "Ban time (in minutes) due fast respawn");
     g_minSpectatorTime = CreateConVar("sm_afr_min_spectator_time", "5", "Minimum time (in seconds) in spectator team to not be punished for fast respawn");
     g_minActivePlayers = CreateConVar("sm_afr_min_active_players", "4", "Minimum amount of active players to enable protection");
+    g_enableWarningsSave = CreateConVar("sm_afr_enable_warnings_save", "1", "Enable (1) or disable (0) warnings save");
+    g_savedWarnings = CreateTrie();
 
     RegAdminCmd("sm_afr", Command_Menu, ADMFLAG_GENERIC);
     RegAdminCmd("sm_afr_warnings", Command_Warnings, ADMFLAG_GENERIC, USAGE_COMMAND_WARNINGS);
@@ -93,9 +101,22 @@ public void OnPluginEnd() {
     for (int i = 0; i <= MAXPLAYERS; i++) {
         g_playerStates[i].CleanUp();
     }
+
+    CloseHandle(g_savedWarnings);
+}
+
+public void OnMapEnd() {
+    g_savedWarnings.Clear();
+
+    LogMessage("All saved warnings was deleted");
+}
+
+public void OnClientAuthorized(int client, const char[] auth) {
+    LoadPlayerWarnings(client);
 }
 
 public void OnClientDisconnect(int client) {
+    SavePlayerWarnings(client);
     g_playerStates[client].CleanUp();
 }
 
@@ -198,7 +219,7 @@ public Action Command_Menu(int client, int args) {
 
 public Action Command_Warnings(int client, int args) {
     if (args < 1) {
-        CReplyToCommand(client, "%s: %s", USAGE_PREFIX_COLORED, USAGE_COMMAND_WARNINGS);
+        CReplyToCommand(client, "%s%s", USAGE_PREFIX_COLORED, USAGE_COMMAND_WARNINGS);
 
         return Plugin_Handled;
     }
@@ -224,7 +245,7 @@ public Action Command_Warnings(int client, int args) {
 
 public Action Command_ResetWarnings(int client, int args) {
     if (args < 1) {
-        CReplyToCommand(client, "%s: %s", USAGE_PREFIX_COLORED, USAGE_COMMAND_RESET_WARNINGS);
+        CReplyToCommand(client, "%s%s", USAGE_PREFIX_COLORED, USAGE_COMMAND_RESET_WARNINGS);
 
         return Plugin_Handled;
     }
@@ -246,7 +267,7 @@ public Action Command_ResetWarnings(int client, int args) {
 
 public Action Command_RemoveWarning(int client, int args) {
     if (args < 1) {
-        CReplyToCommand(client, "%s: %s", USAGE_PREFIX_COLORED, USAGE_COMMAND_REMOVE_WARNING);
+        CReplyToCommand(client, "%s%s", USAGE_PREFIX_COLORED, USAGE_COMMAND_REMOVE_WARNING);
 
         return Plugin_Handled;
     }
@@ -471,6 +492,68 @@ void RemoveWarning(int client, int target) {
     }
 }
 
+void SavePlayerWarnings(int client) {
+    if (!IsClientAuthorized(client)) {
+        LogMessage("%s\"%L\" is not authorized", LOG_PREFIX_WARNINGS_SAVE, client);
+
+        return;
+    }
+
+    if (!IsWarningsSaveEnabled()) {
+        LogMessage("%sFeature is disabled", LOG_PREFIX_WARNINGS_SAVE);
+
+        return;
+    }
+
+    int maxWarnings = GetMaxWarnings();
+    int playerWarnings = g_playerStates[client].warnings;
+
+    if (playerWarnings == 0 || playerWarnings > maxWarnings) {
+        LogMessage("%s\"%L\" has zero warnings or was punished", LOG_PREFIX_WARNINGS_SAVE, client);
+
+        return;
+    }
+
+    char authId[65];
+
+    if (!GetClientAuthId(client, AuthId_Steam3, authId, sizeof(authId), true)) {
+        LogError("%sUnable to get auth ID of \"%L\"", LOG_PREFIX_WARNINGS_SAVE, client);
+
+        return;
+    }
+
+    g_savedWarnings.SetValue(authId, playerWarnings, true);
+
+    LogMessage("Saved %d warning(s) for \"%L\"", playerWarnings, client);
+}
+
+void LoadPlayerWarnings(int client) {
+    if (!IsWarningsSaveEnabled()) {
+        LogMessage("%sFeature is disabled", LOG_PREFIX_WARNINGS_LOAD);
+
+        return;
+    }
+
+    char authId[MAX_AUTH_ID_LENGHT];
+
+    if (!GetClientAuthId(client, AuthId_Steam3, authId, sizeof(authId), true)) {
+        LogError("%sUnable to get auth ID of \"%L\"", LOG_PREFIX_WARNINGS_LOAD, client);
+
+        return;
+    }
+
+    int savedWarnings;
+
+    if (g_savedWarnings.GetValue(authId, savedWarnings)) {
+        g_playerStates[client].warnings += savedWarnings;
+        g_savedWarnings.Remove(authId);
+
+        LogMessage("Loaded %d warning(s) for \"%L\"", savedWarnings, client);
+    } else {
+        LogMessage("%sSaved warnings for \"%L\" not found", LOG_PREFIX_WARNINGS_LOAD, client);
+    }
+}
+
 bool IsProtectionEnabled() {
     if (!IsPluginEnabled() || g_isRoundEnd) {
         return false;
@@ -491,7 +574,7 @@ int GetActivePlayers() {
 }
 
 bool IsPluginEnabled() {
-    return g_pluginEnable.IntValue == 1;
+    return g_enablePlugin.IntValue == 1;
 }
 
 int GetMaxWarnings() {
@@ -516,4 +599,8 @@ float GetMinSpectatorTime() {
 
 int GetMinActivePlayers() {
     return g_minActivePlayers.IntValue;
+}
+
+int IsWarningsSaveEnabled() {
+    return g_enableWarningsSave.IntValue == 1;
 }
