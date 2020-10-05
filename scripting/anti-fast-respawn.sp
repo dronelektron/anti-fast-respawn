@@ -40,7 +40,7 @@ public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
     description = "Prevents fast respawn if a player has changed his class after death near respawn zone",
-    version = "0.12.0",
+    version = "0.12.1",
     url = ""
 }
 
@@ -133,7 +133,12 @@ public void OnClientAuthorized(int client, const char[] auth) {
     LoadPlayerWarnings(client);
 }
 
+public void OnClientPutInServer(int client) {
+    SDKHook(client, SDKHook_OnTakeDamageAlive, Hook_OnTakeDamage);
+}
+
 public void OnClientDisconnect(int client) {
+    SDKUnhook(client, SDKHook_OnTakeDamageAlive, Hook_OnTakeDamage);
     SavePlayerWarnings(client);
     g_playerStates[client].CleanUp();
 }
@@ -265,7 +270,11 @@ public Action Hook_OnTakeDamage(int victim, int& attacker, int& inflictor, float
         return Plugin_Continue;
     }
 
-    CPrintToChat(attacker, "%s%t", PLUGIN_PREFIX_COLORED, "You cannot deal damage");
+    if (g_playerStates[attacker].punishTimer == null) {
+        return Plugin_Continue;
+    }
+
+    CPrintToChat(attacker, "%s%t", PLUGIN_PREFIX_COLORED, "You cannot attack");
 
     return Plugin_Handled;
 }
@@ -536,7 +545,6 @@ void BlockPlayer(int client) {
         g_playerStates[client].punishTimer = CreateTimer(PUNISH_TIMER_INTERVAL_SECONDS, Timer_Punish, userId, TIMER_REPEAT);
 
         EmitSoundAtEyePosition(client, SOUND_BLOCK);
-        SDKHook(client, SDKHook_OnTakeDamageAlive, Hook_OnTakeDamage);
     }
 
     SetEntityMoveType(client, MOVETYPE_NONE);
@@ -547,7 +555,6 @@ void UnblockPlayer(int client) {
     SetEntityMoveType(client, MOVETYPE_WALK);
     SetEntityRenderColorHex(client, COLOR_UNBLOCK);
     EmitSoundAtEyePosition(client, SOUND_UNBLOCK);
-    SDKUnhook(client, SDKHook_OnTakeDamageAlive, Hook_OnTakeDamage);
 }
 
 void EmitSoundAtEyePosition(int client, const char[] sound) {

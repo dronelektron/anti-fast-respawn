@@ -40,7 +40,7 @@
         "ru"    "{default}У игрока {green}{1} {default}нет предупреждений"
     }
 
-    "You cannot deal damage"
+    "You cannot attack"
     {
         "ru"    "{default}Вы {red}не можете {default}нанести урон пока наказаны"
     }

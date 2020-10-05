@@ -46,7 +46,7 @@
         "en"    "{default}The player {green}{1} {default}has no warnings"
     }
 
-    "You cannot deal damage"
+    "You cannot attack"
     {
         "en"    "{default}You {red}cannot {default}deal damage while punished"
     }
