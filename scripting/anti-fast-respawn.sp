@@ -1,6 +1,7 @@
 #include <sourcemod>
 #include <sdktools>
 #include <morecolors>
+#include <sdkhooks>
 
 #define PLUGIN_PREFIX "[AFR] "
 #define PLUGIN_PREFIX_COLORED "{cyan}[AFR] "
@@ -21,19 +22,25 @@
 #define TEAM_ALLIES 2
 #define TEAM_AXIS 3
 
-#define RESPAWN_THRESHOLD_MSEC 0.1
+#define RESPAWN_THRESHOLD_SECONDS 0.1
+#define PUNISH_TIMER_INTERVAL_SECONDS 1.0
 #define MAX_TEXT_LENGHT 192
 #define MAX_AUTH_ID_LENGHT 65
-#define COMMAND_FREEZE_FORMAT "sm_freeze #%d %d"
 
 #define PUNISH_TYPE_KICK 1
 #define PUNISH_TYPE_BAN 2
+
+#define SOUND_BLOCK "physics/glass/glass_impact_bullet4.wav"
+#define SOUND_UNBLOCK "physics/glass/glass_bottle_break2.wav"
+
+#define COLOR_BLOCK 0x0080FFFF // 0 128 255 255
+#define COLOR_UNBLOCK 0xFFFFFFFF // 255 255 255 255
 
 public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
     description = "Prevents fast respawn if a player has changed his class after death near respawn zone",
-    version = "0.11.0",
+    version = "0.12.0",
     url = ""
 }
 
@@ -45,22 +52,27 @@ static ConVar g_banTime = null;
 static ConVar g_minSpectatorTime = null;
 static ConVar g_minActivePlayers = null;
 static ConVar g_enableWarningsSave = null;
+static ConVar g_blockDamage = null;
 
 enum struct PlayerState {
-    Handle punishTimer;
+    Handle checkerTimer;
     Handle spectatorTimer;
+    Handle punishTimer;
     int warnings;
     bool isKilled;
     int lastTeam;
+    int punishmentSeconds;
     int targetId;
 
     void CleanUp() {
-        delete this.punishTimer;
+        delete this.checkerTimer;
         delete this.spectatorTimer;
+        delete this.punishTimer;
 
         this.warnings = 0;
         this.isKilled = false;
         this.lastTeam = 0;
+        this.punishmentSeconds = 0;
         this.targetId = 0;
     }
 }
@@ -87,6 +99,7 @@ public void OnPluginStart() {
     g_minSpectatorTime = CreateConVar("sm_afr_min_spectator_time", "5", "Minimum time (in seconds) in spectator team to not be punished for fast respawn");
     g_minActivePlayers = CreateConVar("sm_afr_min_active_players", "4", "Minimum amount of active players to enable protection");
     g_enableWarningsSave = CreateConVar("sm_afr_enable_warnings_save", "1", "Enable (1) or disable (0) warnings save");
+    g_blockDamage = CreateConVar("sm_afr_block_damage", "1", "Enable (1) or disable (0) damage blocking when player is punished");
     g_savedWarnings = CreateTrie();
 
     RegAdminCmd("sm_afr", Command_Menu, ADMFLAG_GENERIC);
@@ -103,6 +116,11 @@ public void OnPluginEnd() {
     }
 
     CloseHandle(g_savedWarnings);
+}
+
+public void OnMapStart() {
+    PrecacheSound(SOUND_BLOCK, true);
+    PrecacheSound(SOUND_UNBLOCK, true);
 }
 
 public void OnMapEnd() {
@@ -124,9 +142,15 @@ public void Event_PlayerChangeClass(Event event, const char[] name, bool dontBro
     int userId = event.GetInt("userid");
     int client = GetClientOfUserId(userId);
 
-    if (g_playerStates[client].isKilled) {
-        CreatePunishTimer(client);
+    if (!g_playerStates[client].isKilled) {
+        return;
     }
+
+    if (g_playerStates[client].punishTimer != null) {
+        return;
+    }
+
+    CreateCheckerTimer(client);
 }
 
 public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast) {
@@ -141,6 +165,10 @@ public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast
     int client = GetClientOfUserId(userId);
 
     g_playerStates[client].isKilled = false;
+
+    if (g_playerStates[client].punishTimer != null) {
+        BlockPlayer(client);
+    }
 }
 
 public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast) {
@@ -175,7 +203,7 @@ public void Event_RoundWin(Event event, const char[] name, bool dontBroadcast) {
     g_isRoundEnd = true;
 }
 
-public Action Timer_Punish(Handle timer, int userId) {
+public Action Timer_Checker(Handle timer, int userId) {
     int client = GetClientOfUserId(userId);
 
     if (client == 0) {
@@ -186,7 +214,7 @@ public Action Timer_Punish(Handle timer, int userId) {
         PunishPlayer(client);
     }
 
-    g_playerStates[client].punishTimer = null;
+    g_playerStates[client].checkerTimer = null;
 
     return Plugin_Continue;
 }
@@ -205,6 +233,41 @@ public Action Timer_Spectator(Handle timer, int userId) {
     g_playerStates[client].spectatorTimer = null;
 
     return Plugin_Continue;
+}
+
+public Action Timer_Punish(Handle timer, int userId) {
+    int client = GetClientOfUserId(userId);
+
+    if (client == 0) {
+        return Plugin_Stop;
+    }
+
+    int punishmentSeconds = g_playerStates[client].punishmentSeconds;
+
+    if (punishmentSeconds > 0) {
+        PrintHintText(client, "%t", "You was punished", punishmentSeconds);
+
+        g_playerStates[client].punishmentSeconds--;
+
+        return Plugin_Continue;
+    }
+
+    g_playerStates[client].punishTimer = null;
+
+    UnblockPlayer(client);
+    PrintHintText(client, "%t", "You are free now");
+
+    return Plugin_Stop;
+}
+
+public Action Hook_OnTakeDamage(int victim, int& attacker, int& inflictor, float& damage, int& damagetype, int& weapon, float damageForce[3], float damagePosition[3]) {
+    if (!IsBlockDamage()) {
+        return Plugin_Continue;
+    }
+
+    CPrintToChat(attacker, "%s%t", PLUGIN_PREFIX_COLORED, "You cannot deal damage");
+
+    return Plugin_Handled;
 }
 
 public Action Command_Menu(int client, int args) {
@@ -399,20 +462,24 @@ void AddFormattedMenuItem(Menu menu, int style, const char[] option, const char[
     menu.AddItem(option, text, style);
 }
 
-void CreatePunishTimer(int client) {
+void CreateCheckerTimer(int client) {
     if (!IsProtectionEnabled()) {
         return;
     }
 
-    if (g_playerStates[client].punishTimer == null) {
+    if (g_playerStates[client].checkerTimer == null) {
         int userId = GetClientUserId(client);
 
-        g_playerStates[client].punishTimer = CreateTimer(RESPAWN_THRESHOLD_MSEC, Timer_Punish, userId);
+        g_playerStates[client].checkerTimer = CreateTimer(RESPAWN_THRESHOLD_SECONDS, Timer_Checker, userId);
     }
 }
 
 void CreateSpectatorTimer(int client) {
     if (!IsProtectionEnabled()) {
+        return;
+    }
+
+    if (g_playerStates[client].punishTimer != null) {
         return;
     }
 
@@ -436,7 +503,7 @@ void PunishPlayer(int client) {
         CPrintToChatAll("%s%t", PLUGIN_PREFIX_COLORED, "Fast respawn detected", client, playerWarnings, maxWarnings);
         CPrintToChat(client, "%s%t", PLUGIN_PREFIX_COLORED, "Anti fast respawn advice");
         LogAction(-1, -1, "\"%L\" fast respawned (%d/%d)", client, playerWarnings, maxWarnings);
-        FreezePlayer(client);
+        BlockPlayer(client);
     }
 }
 
@@ -457,15 +524,46 @@ void PunishPlayerByType(int client) {
 
         CPrintToChatAll("%s%t", PLUGIN_PREFIX_COLORED, "Player is abusing fast respawn", client, playerWarnings);
         LogAction(-1, -1, "\"%L\" is abusing fast respawn (%d times)", client, playerWarnings);
-        FreezePlayer(client);
+        BlockPlayer(client);
     }
 }
 
-void FreezePlayer(int client) {
-    int userId = GetClientUserId(client);
-    int freezeTime = GetFreezeTime();
+void BlockPlayer(int client) {
+    if (g_playerStates[client].punishTimer == null) {
+        int userId = GetClientUserId(client);
 
-    ServerCommand(COMMAND_FREEZE_FORMAT, userId, freezeTime);
+        g_playerStates[client].punishmentSeconds = GetFreezeTime();
+        g_playerStates[client].punishTimer = CreateTimer(PUNISH_TIMER_INTERVAL_SECONDS, Timer_Punish, userId, TIMER_REPEAT);
+
+        EmitSoundAtEyePosition(client, SOUND_BLOCK);
+        SDKHook(client, SDKHook_OnTakeDamageAlive, Hook_OnTakeDamage);
+    }
+
+    SetEntityMoveType(client, MOVETYPE_NONE);
+    SetEntityRenderColorHex(client, COLOR_BLOCK);
+}
+
+void UnblockPlayer(int client) {
+    SetEntityMoveType(client, MOVETYPE_WALK);
+    SetEntityRenderColorHex(client, COLOR_UNBLOCK);
+    EmitSoundAtEyePosition(client, SOUND_UNBLOCK);
+    SDKUnhook(client, SDKHook_OnTakeDamageAlive, Hook_OnTakeDamage);
+}
+
+void EmitSoundAtEyePosition(int client, const char[] sound) {
+    float eyePos[3];
+
+    GetClientEyePosition(client, eyePos);
+    EmitAmbientSound(sound, eyePos, client, SNDLEVEL_RAIDSIREN);
+}
+
+void SetEntityRenderColorHex(int client, int color) {
+    int red = (color >> 24) & 0xFF;
+    int green = (color >> 16) & 0xFF;
+    int blue = (color >> 8) & 0xFF;
+    int alpha = color & 0xFF;
+
+    SetEntityRenderColor(client, red, green, blue, alpha);
 }
 
 void ResetWarnings(int client, int target) {
@@ -603,4 +701,8 @@ int GetMinActivePlayers() {
 
 int IsWarningsSaveEnabled() {
     return g_enableWarningsSave.IntValue == 1;
+}
+
+bool IsBlockDamage() {
+    return g_blockDamage.IntValue == 1;
 }

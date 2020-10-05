@@ -26,7 +26,7 @@
 
     "Anti fast respawn advice"
     {
-        "en"    "{default}If you died near the respawn zone then change your class only when you are alive"
+        "en"    "{default}Try not to change class near the spawn zone while you are dead"
     }
 
     "Player no longer available"
@@ -44,6 +44,22 @@
     {
         "#format" "{1:N}"
         "en"    "{default}The player {green}{1} {default}has no warnings"
+    }
+
+    "You cannot deal damage"
+    {
+        "en"    "{default}You {red}cannot {default}deal damage while punished"
+    }
+
+    "You was punished"
+    {
+        "#format" "{1:d}"
+        "en"    "You was punished for fast respawn (Seconds left: {1})"
+    }
+
+    "You are free now"
+    {
+        "en"    "You are free now"
     }
 
     "Fast respawn forbidden"

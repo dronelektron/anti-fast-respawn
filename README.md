@@ -26,6 +26,7 @@ Prevents fast respawn if a player has changed his class after death near respawn
 * sm_afr_min_spectator_time - Minimum time (in seconds) in spectator team to not be punished for fast respawn [default: "5"]
 * sm_afr_min_active_players - Minimum amount of active players to enable protection [default: "4"]
 * sm_afr_enable_warnings_save - Enable (1) or disable (0) warnings save [default: "1"]
+* sm_afr_block_damage - Enable (1) or disable (0) damage blocking when player is punished [default: "1"]
 
 ### Console Commands
 

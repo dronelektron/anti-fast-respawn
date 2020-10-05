@@ -22,7 +22,7 @@
 
     "Anti fast respawn advice"
     {
-        "ru"    "{default}Если вы умерли рядом с зоной возрождения, то меняйте свой класс только тогда когда вы живы"
+        "ru"    "{default}Старайтесь не менять класс рядом с зоной возрождения пока вы мертвы"
     }
 
     "Player no longer available"
@@ -38,6 +38,21 @@
     "Player has no warnings"
     {
         "ru"    "{default}У игрока {green}{1} {default}нет предупреждений"
+    }
+
+    "You cannot deal damage"
+    {
+        "ru"    "{default}Вы {red}не можете {default}нанести урон пока наказаны"
+    }
+
+    "You was punished"
+    {
+        "ru"    "Вы были наказаны за быстрое возрождение (Осталось секунд: {1})"
+    }
+
+    "You are free now"
+    {
+        "ru"    "Теперь вы свободны"
     }
 
     "Fast respawn forbidden"
