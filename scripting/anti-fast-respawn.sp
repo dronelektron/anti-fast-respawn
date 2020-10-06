@@ -24,6 +24,7 @@
 
 #define RESPAWN_THRESHOLD_SECONDS 0.1
 #define PUNISH_TIMER_INTERVAL_SECONDS 1.0
+#define DAMAGE_MESSAGE_DELAY_SECONDS 1.0
 #define MAX_TEXT_LENGHT 192
 #define MAX_AUTH_ID_LENGHT 65
 
@@ -32,6 +33,7 @@
 
 #define SOUND_BLOCK "physics/glass/glass_impact_bullet4.wav"
 #define SOUND_UNBLOCK "physics/glass/glass_bottle_break2.wav"
+#define SOUND_DAMAGE_MESSAGE "buttons/button8.wav"
 
 #define COLOR_BLOCK 0x0080FFFF // 0 128 255 255
 #define COLOR_UNBLOCK 0xFFFFFFFF // 255 255 255 255
@@ -40,7 +42,7 @@ public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
     description = "Prevents fast respawn if a player has changed his class after death near respawn zone",
-    version = "0.12.1",
+    version = "0.12.2",
     url = ""
 }
 
@@ -58,6 +60,7 @@ enum struct PlayerState {
     Handle checkerTimer;
     Handle spectatorTimer;
     Handle punishTimer;
+    Handle damageMessageTimer;
     int warnings;
     bool isKilled;
     int lastTeam;
@@ -68,6 +71,7 @@ enum struct PlayerState {
         delete this.checkerTimer;
         delete this.spectatorTimer;
         delete this.punishTimer;
+        delete this.damageMessageTimer;
 
         this.warnings = 0;
         this.isKilled = false;
@@ -121,6 +125,7 @@ public void OnPluginEnd() {
 public void OnMapStart() {
     PrecacheSound(SOUND_BLOCK, true);
     PrecacheSound(SOUND_UNBLOCK, true);
+    PrecacheSound(SOUND_DAMAGE_MESSAGE, true);
 }
 
 public void OnMapEnd() {
@@ -265,6 +270,18 @@ public Action Timer_Punish(Handle timer, int userId) {
     return Plugin_Stop;
 }
 
+public Action Timer_DamageMessage(Handle timer, int userId) {
+    int client = GetClientOfUserId(userId);
+
+    if (client == 0) {
+        return Plugin_Stop;
+    }
+
+    g_playerStates[client].damageMessageTimer = null;
+
+    return Plugin_Handled;
+}
+
 public Action Hook_OnTakeDamage(int victim, int& attacker, int& inflictor, float& damage, int& damagetype, int& weapon, float damageForce[3], float damagePosition[3]) {
     if (!IsBlockDamage()) {
         return Plugin_Continue;
@@ -274,7 +291,14 @@ public Action Hook_OnTakeDamage(int victim, int& attacker, int& inflictor, float
         return Plugin_Continue;
     }
 
-    CPrintToChat(attacker, "%s%t", PLUGIN_PREFIX_COLORED, "You cannot attack");
+    if (g_playerStates[attacker].damageMessageTimer == null) {
+        int userId = GetClientUserId(attacker);
+
+        g_playerStates[attacker].damageMessageTimer = CreateTimer(DAMAGE_MESSAGE_DELAY_SECONDS, Timer_DamageMessage, userId);
+
+        CPrintToChat(attacker, "%s%t", PLUGIN_PREFIX_COLORED, "You cannot attack");
+        EmitSoundToClient(attacker, SOUND_DAMAGE_MESSAGE);
+    }
 
     return Plugin_Handled;
 }
