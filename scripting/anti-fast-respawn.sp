@@ -42,7 +42,7 @@ public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
     description = "Prevents fast respawn if a player has changed his class after death near respawn zone",
-    version = "0.12.2",
+    version = "0.12.3",
     url = ""
 }
 
@@ -284,6 +284,10 @@ public Action Timer_DamageMessage(Handle timer, int userId) {
 
 public Action Hook_OnTakeDamage(int victim, int& attacker, int& inflictor, float& damage, int& damagetype, int& weapon, float damageForce[3], float damagePosition[3]) {
     if (!IsBlockDamage()) {
+        return Plugin_Continue;
+    }
+
+    if (!IsClientIndexValid(attacker)) {
         return Plugin_Continue;
     }
 
@@ -681,6 +685,10 @@ void LoadPlayerWarnings(int client) {
     } else {
         LogMessage("%sSaved warnings for \"%L\" not found", LOG_PREFIX_WARNINGS_LOAD, client);
     }
+}
+
+bool IsClientIndexValid(int client) {
+    return client >= 1 && client <= MAXPLAYERS;
 }
 
 bool IsProtectionEnabled() {
