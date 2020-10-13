@@ -18,10 +18,10 @@
         "en"    "{default}Warnings for player {green}{1}{default}: {red}{2}/{3}"
     }
 
-    "Warnings for the player are reset to zero"
+    "Warnings cleared"
     {
-        "#format" "{1:N}"
-        "en"    "{default}Warnings for player {green}{1} {default}are reset to zero"
+        "#format" "{1:N},{2:N}"
+        "en"    "{yellow}{1}: {default}Warnings for player {green}{2} {default}was reset to zero"
     }
 
     "Anti fast respawn advice"
@@ -36,8 +36,8 @@
 
     "Removed warning"
     {
-        "#format" "{1:N}"
-        "en"    "{default}Removed one warning for player {green}{1}"
+        "#format" "{1:N},{2:N}"
+        "en"    "{yellow}{1}: {default}Removed one warning for player {green}{2}"
     }
 
     "Player has no warnings"

@@ -15,9 +15,9 @@
         "ru"    "{default}Предупреждений для игрока {green}{1}{default}: {red}{2}/{3}"
     }
 
-    "Warnings for the player are reset to zero"
+    "Warnings cleared"
     {
-        "ru"    "{default}Предупреждения для игрока {green}{1} {default}сброшены"
+        "ru"    "{yellow}{1}: {default}Предупреждения для игрока {green}{2} {default}были сброшены"
     }
 
     "Anti fast respawn advice"
@@ -32,7 +32,7 @@
 
     "Removed warning"
     {
-        "ru"    "{default}Удалено одно предупреждение для игрока {green}{1}"
+        "ru"    "{yellow}{1}: {default}Удалено одно предупреждение для игрока {green}{2}"
     }
 
     "Player has no warnings"

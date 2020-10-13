@@ -42,7 +42,7 @@ public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
     description = "Prevents fast respawn if a player has changed his class after death near respawn zone",
-    version = "0.12.3",
+    version = "0.13.0",
     url = ""
 }
 
@@ -606,7 +606,7 @@ void ResetWarnings(int client, int target) {
         CReplyToCommand(client, "%s%t", PLUGIN_PREFIX_COLORED, "Player has no warnings", target);
         LogAction(client, target, "\"%L\" tried to reset warnings for \"%L\"", client, target);
     } else {
-        CPrintToChatAll("%s%t", PLUGIN_PREFIX_COLORED, "Warnings for the player are reset to zero", target);
+        CPrintToChatAll("%s%t", PLUGIN_PREFIX_COLORED, "Warnings cleared", client, target);
         LogAction(client, target, "\"%L\" reset warnings for \"%L\"", client, target);
 
         g_playerStates[target].warnings = 0;
@@ -618,7 +618,7 @@ void RemoveWarning(int client, int target) {
         CReplyToCommand(client, "%s%t", PLUGIN_PREFIX_COLORED, "Player has no warnings", target);
         LogAction(client, target, "\"%L\" tried to remove one warning for \"%L\"", client, target);
     } else {
-        CPrintToChatAll("%s%t", PLUGIN_PREFIX_COLORED, "Removed warning", target);
+        CPrintToChatAll("%s%t", PLUGIN_PREFIX_COLORED, "Removed warning", client, target);
         LogAction(client, target, "\"%L\" removed one warning for \"%L\"", client, target);
 
         g_playerStates[target].warnings--;
