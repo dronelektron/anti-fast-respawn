@@ -39,13 +39,13 @@
 #define COLOR_BLOCK 0x0080FFFF // 0 128 255 255
 #define COLOR_UNBLOCK 0xFFFFFFFF // 255 255 255 255
 
-#define UPDATE_URL "https://raw.githubusercontent.com/Dron-elektron/anti-fast-respawn/master/update.txt"
+#define UPDATE_URL "https://dron-elektron.github.io/sourcemod/anti-fast-respawn/update.txt"
 
 public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
     description = "Prevents fast respawn if a player has changed his class after death near respawn zone",
-    version = "0.14.1",
+    version = "0.14.2",
     url = ""
 }
 
