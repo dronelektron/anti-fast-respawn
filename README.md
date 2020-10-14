@@ -9,6 +9,7 @@ Prevents fast respawn if a player has changed his class after death near respawn
 ### Pre-requirements
 
 * [morecolors](https://forums.alliedmods.net/showthread.php?t=185016)
+* [updater](https://forums.alliedmods.net/showthread.php?t=169095)
 
 ### Installation
 

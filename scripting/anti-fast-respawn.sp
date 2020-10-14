@@ -2,6 +2,7 @@
 #include <sdktools>
 #include <morecolors>
 #include <sdkhooks>
+#include <updater>
 
 #define PLUGIN_PREFIX "[AFR] "
 #define PLUGIN_PREFIX_COLORED "{cyan}[AFR] "
@@ -38,11 +39,13 @@
 #define COLOR_BLOCK 0x0080FFFF // 0 128 255 255
 #define COLOR_UNBLOCK 0xFFFFFFFF // 255 255 255 255
 
+#define UPDATE_URL "https://github.com/Dron-elektron/anti-fast-respawn/blob/master/update.txt"
+
 public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
     description = "Prevents fast respawn if a player has changed his class after death near respawn zone",
-    version = "0.13.0",
+    version = "0.14.0",
     url = ""
 }
 
@@ -112,6 +115,16 @@ public void OnPluginStart() {
     RegAdminCmd("sm_afr_remove_warning", Command_RemoveWarning, ADMFLAG_GENERIC, USAGE_COMMAND_REMOVE_WARNING);
 
     AutoExecConfig(true, "anti-fast-respawn");
+
+    if (LibraryExists("updater")) {
+        Updater_AddPlugin(UPDATE_URL);
+    }
+}
+
+public void OnLibraryAdded(const char[] name) {
+    if (StrEqual(name, "updater")) {
+        Updater_AddPlugin(UPDATE_URL);
+    }
 }
 
 public void OnPluginEnd() {
