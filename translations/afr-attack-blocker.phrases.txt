@@ -1,0 +1,7 @@
+"Phrases"
+{
+    "You cannot attack"
+    {
+        "en"    "{default}You {red}cannot {default}deal damage while punished"
+    }
+}

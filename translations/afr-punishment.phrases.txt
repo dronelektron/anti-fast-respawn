@@ -1,0 +1,59 @@
+"Phrases"
+{
+    "Fast respawn detected"
+    {
+        "#format" "{1:N},{2:d},{3:d}"
+        "en"    "{default}Player {green}{1} {default}fast respawned {red}(Warnings {2}/{3})"
+    }
+
+    "Anti fast respawn advice"
+    {
+        "en"    "{default}Try not to change class near the spawn zone while you are dead"
+    }
+
+    "Player is abusing fast respawn"
+    {
+        "#format" "{1:N},{2:d}"
+        "en"    "{default}Player {green}{1} {default}is abusing fast respawn {red}(already {2} times)"
+    }
+
+    "You was punished"
+    {
+        "#format" "{1:d}"
+        "en"    "You was punished for fast respawn (Seconds left: {1})"
+    }
+
+    "You are free now"
+    {
+        "en"    "You are free now"
+    }
+
+    "Fast respawn forbidden"
+    {
+        "en"    "Fast respawn forbidden"
+    }
+
+    "Warnings for player"
+    {
+        "#format" "{1:N},{2:d},{3:d}"
+        "en"    "{default}Warnings for player {green}{1}{default}: {red}{2}/{3}"
+    }
+
+    "Player has no warnings"
+    {
+        "#format" "{1:N}"
+        "en"    "{default}The player {green}{1} {default}has no warnings"
+    }
+
+    "Warnings cleared"
+    {
+        "#format" "{1:N},{2:N}"
+        "en"    "{yellow}{1}: {default}Warnings for player {green}{2} {default}was reset to zero"
+    }
+
+    "Removed warning"
+    {
+        "#format" "{1:N},{2:N}"
+        "en"    "{yellow}{1}: {default}Removed one warning for player {green}{2}"
+    }
+}

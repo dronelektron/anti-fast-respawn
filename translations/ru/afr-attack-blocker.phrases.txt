@@ -1,0 +1,7 @@
+"Phrases"
+{
+    "You cannot attack"
+    {
+        "ru"    "{default}Вы {red}не можете {default}нанести урон пока наказаны"
+    }
+}

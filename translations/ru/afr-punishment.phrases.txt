@@ -1,0 +1,52 @@
+"Phrases"
+{
+    "Fast respawn detected"
+    {
+        "ru"    "{default}Игрок {green}{1} {default}быстро возродился {red}(Предупреждений {2}/{3})"
+    }
+
+    "Anti fast respawn advice"
+    {
+        "ru"    "{default}Старайтесь не менять класс рядом с зоной возрождения пока вы мертвы"
+    }
+
+    "Player is abusing fast respawn"
+    {
+        "ru"    "{default}Игрок {green}{1} {default}злоупотребляет быстрым респауном {red}(уже {2} раз(а))"
+    }
+
+    "You was punished"
+    {
+        "ru"    "Вы были наказаны за быстрое возрождение (Осталось секунд: {1})"
+    }
+
+    "You are free now"
+    {
+        "ru"    "Теперь вы свободны"
+    }
+
+    "Fast respawn forbidden"
+    {
+        "ru"    "Быстрое возрождение запрещено"
+    }
+
+    "Warnings for player"
+    {
+        "ru"    "{default}Предупреждений для игрока {green}{1}{default}: {red}{2}/{3}"
+    }
+
+    "Player has no warnings"
+    {
+        "ru"    "{default}У игрока {green}{1} {default}нет предупреждений"
+    }
+
+    "Warnings cleared"
+    {
+        "ru"    "{yellow}{1}: {default}Предупреждения для игрока {green}{2} {default}были сброшены"
+    }
+
+    "Removed warning"
+    {
+        "ru"    "{yellow}{1}: {default}Удалено одно предупреждение для игрока {green}{2}"
+    }
+}

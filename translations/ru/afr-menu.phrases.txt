@@ -1,0 +1,27 @@
+"Phrases"
+{
+    "Menu"
+    {
+        "ru"    "Меню"
+    }
+
+    "Player name with warnings amount"
+    {
+        "ru"    "{1} ({2})"
+    }
+
+    "Reset warnings"
+    {
+        "ru"    "Сбросить предупреждения"
+    }
+
+    "Remove warning"
+    {
+        "ru"    "Удалить одно предупреждение"
+    }
+
+    "Player no longer available"
+    {
+        "ru"    "{default}Выбранный игрок больше не доступен"
+    }
+}
