@@ -15,15 +15,18 @@ public Plugin myinfo = {
     url = ""
 }
 
-static const float DAMAGE_MESSAGE_TIMER_DELAY = 1.0
+static const float DAMAGE_MESSAGE_TIMER_DELAY = 1.0;
 
-static ConVar g_blockAttack = null;
 static Handle g_damageMessageTimer[MAXPLAYERS + 1] = {null, ...};
+
+static ConVar g_blockAttackerDamage = null;
+static ConVar g_blockVictimDamage = null;
 
 public void OnPluginStart() {
     LoadTranslations("afr-attack-blocker.phrases");
 
-    g_blockAttack = CreateConVar("sm_afr_block_attack", "1", "Enable (1) or disable (0) attack blocking when a player is punished");
+    g_blockAttackerDamage = CreateConVar("sm_afr_block_attacker_damage", "1", "Enable (1) or disable (0) damage from attacker when he is punished");
+    g_blockVictimDamage = CreateConVar("sm_afr_block_victim_damage", "1", "Enable (1) or disable (0) damage on victim when he is punished");
 
     AutoExecConfig(true, "afr-attack-blocker");
 }
@@ -53,18 +56,24 @@ public Action Timer_DamageMessage(Handle timer, int userId) {
 }
 
 public Action Hook_OnTakeDamage(int victim, int& attacker, int& inflictor, float& damage, int& damagetype, int& weapon, float damageForce[3], float damagePosition[3]) {
-    if (!IsBlockDamage()) {
+    if (!IsClientIndexValid(victim) || !IsClientIndexValid(attacker)) {
         return Plugin_Continue;
     }
 
-    if (!IsClientIndexValid(attacker)) {
-        return Plugin_Continue;
+    if (Afr_IsPlayerPunished(attacker) && IsBlockAttackerDamage()) {
+        CreateDamageMessageTimerForAttacker(attacker);
+
+        return Plugin_Handled;
     }
 
-    if (!Afr_IsPlayerPunished(attacker)) {
-        return Plugin_Continue;
+    if (Afr_IsPlayerPunished(victim) && IsBlockVictimDamage()) {
+        return Plugin_Handled;
     }
 
+    return Plugin_Continue;
+}
+
+static void CreateDamageMessageTimerForAttacker(int attacker) {
     if (g_damageMessageTimer[attacker] == null) {
         int userId = GetClientUserId(attacker);
 
@@ -73,14 +82,16 @@ public Action Hook_OnTakeDamage(int victim, int& attacker, int& inflictor, float
         CPrintToChat(attacker, "%s%t", PREFIX_COLORED, "You cannot attack");
         EmitSoundToClient(attacker, SOUND_DAMAGE_MESSAGE);
     }
-
-    return Plugin_Handled;
 }
 
 static bool IsClientIndexValid(int client) {
-    return client >= 1 && client <= MAXPLAYERS;
+    return client >= 1 && client <= MaxClients;
 }
 
-static bool IsBlockDamage() {
-    return g_blockAttack.IntValue == 1;
+static bool IsBlockAttackerDamage() {
+    return g_blockAttackerDamage.IntValue == 1;
+}
+
+static bool IsBlockVictimDamage() {
+    return g_blockVictimDamage.IntValue == 1;
 }

@@ -20,7 +20,8 @@ Prevents fast respawn if a player has changed his class after death near respawn
 
 ###### Attack blocker
 
-* sm_afr_block_attack - Enable (1) or disable (0) attack blocking when a player is punished [default: "1"]
+* sm_afr_block_attacker_damage - Enable (1) or disable (0) damage from attacker when he is punished [default: "1"]
+* sm_afr_block_victim_damage - Enable (1) or disable (0) damage on victim when he is punished [default: "1"]
 
 ###### Punishment
 
