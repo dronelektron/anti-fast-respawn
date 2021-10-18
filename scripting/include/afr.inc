@@ -4,7 +4,7 @@
 #define _afr_
 
 #define PLUGIN_AUTHOR "Dron-elektron"
-#define PLUGIN_VERSION "0.15.0"
+#define PLUGIN_VERSION "0.16.0"
 
 #define PREFIX "[AFR] "
 #define PREFIX_COLORED "{cyan}[AFR] "
