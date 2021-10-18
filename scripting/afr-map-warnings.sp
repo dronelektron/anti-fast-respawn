@@ -33,7 +33,7 @@ public void OnMapEnd() {
 }
 
 public void OnClientConnected(int client) {
-    StrCopy(g_authId[client], MAX_AUTH_ID_LENGTH, NO_AUTH_ID);
+    strcopy(g_authId[client], MAX_AUTH_ID_LENGTH, NO_AUTH_ID);
 }
 
 public void OnClientAuthorized(int client, const char[] auth) {
