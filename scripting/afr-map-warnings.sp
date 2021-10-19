@@ -13,15 +13,11 @@ public Plugin myinfo = {
     url = ""
 }
 
-static ConVar g_enableWarningsSave = null;
 static StringMap g_savedWarnings = null;
 static char g_authId[MAXPLAYERS + 1][MAX_AUTH_ID_LENGTH];
 
 public void OnPluginStart() {
-    g_enableWarningsSave = CreateConVar("sm_afr_enable_warnings_save", "1", "Enable (1) or disable (0) warnings save");
     g_savedWarnings = CreateTrie();
-
-    AutoExecConfig(true, "afr-map-warnings");
 }
 
 public void OnPluginEnd() {
@@ -84,8 +80,4 @@ static void SavePlayerWarnings(int client) {
     }
 
     g_savedWarnings.SetValue(g_authId[client], playerWarnings, true);
-}
-
-static int IsWarningsSaveEnabled() {
-    return g_enableWarningsSave.IntValue == 1;
 }

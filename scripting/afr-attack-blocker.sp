@@ -19,16 +19,8 @@ static const float DAMAGE_MESSAGE_TIMER_DELAY = 1.0;
 
 static Handle g_damageMessageTimer[MAXPLAYERS + 1] = {null, ...};
 
-static ConVar g_blockAttackerDamage = null;
-static ConVar g_blockVictimDamage = null;
-
 public void OnPluginStart() {
     LoadTranslations("anti-fast-respawn.phrases");
-
-    g_blockAttackerDamage = CreateConVar("sm_afr_block_attacker_damage", "1", "Enable (1) or disable (0) damage from attacker when he is punished");
-    g_blockVictimDamage = CreateConVar("sm_afr_block_victim_damage", "1", "Enable (1) or disable (0) damage on victim when he is punished");
-
-    AutoExecConfig(true, "afr-attack-blocker");
 }
 
 public void OnMapStart() {
@@ -86,12 +78,4 @@ static void CreateDamageMessageTimerForAttacker(int attacker) {
 
 static bool IsClientIndexValid(int client) {
     return client >= 1 && client <= MaxClients;
-}
-
-static bool IsBlockAttackerDamage() {
-    return g_blockAttackerDamage.IntValue == 1;
-}
-
-static bool IsBlockVictimDamage() {
-    return g_blockVictimDamage.IntValue == 1;
 }

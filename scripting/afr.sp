@@ -13,8 +13,6 @@ public Plugin myinfo = {
 static const float CHECKER_TIMER_DURATION = 0.1;
 
 static GlobalForward g_onClientFastRespawned = null;
-static ConVar g_pluginEnabled = null;
-static ConVar g_minActivePlayers = null;
 static bool g_isRoundEnd = false;
 static Handle g_checkerTimer[MAXPLAYERS + 1] = {null, ...};
 static bool g_killed[MAXPLAYERS + 1] = {false, ...};
@@ -35,11 +33,10 @@ public void OnPluginStart() {
     HookEvent("dod_round_win", Event_RoundWin);
 
     g_onClientFastRespawned = new GlobalForward("OnPlayerFastRespawned", ET_Ignore, Param_Cell);
-    g_pluginEnabled = CreateConVar("sm_afr_enable", "1", "Enable (1) or disable (0) detection of fast respawn");
-    g_minActivePlayers = CreateConVar("sm_afr_min_active_players", "1", "Minimum amount of active players to enable protection");
 
+    CreateConVars();
     LoadTranslations("anti-fast-respawn.phrases");
-    AutoExecConfig(true, "afr");
+    AutoExecConfig(true, "anti-fast-respawn");
 }
 
 public void OnClientConnected(int client) {
@@ -121,14 +118,6 @@ static bool IsEnoughActivePlayers() {
 
 static int GetActivePlayers() {
     return GetTeamClientCount(TEAM_ALLIES) + GetTeamClientCount(TEAM_AXIS);
-}
-
-static bool IsPluginEnabled() {
-    return g_pluginEnabled.IntValue == 1;
-}
-
-static int GetMinActivePlayers() {
-    return g_minActivePlayers.IntValue;
 }
 
 static any Native_IsProtectionEnabled(Handle plugin, int numParams) {

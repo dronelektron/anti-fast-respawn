@@ -26,11 +26,6 @@ enum PunishType {
 
 static const float PUNISH_TIMER_INTERVAL = 1.0;
 
-static ConVar g_maxWarnings = null;
-static ConVar g_punishType = null;
-static ConVar g_freezeTime = null;
-static ConVar g_banTime = null;
-static ConVar g_minSpectatorTime = null;
 static int g_warnings[MAXPLAYERS + 1] = {0, ...};
 static int g_punishmentSeconds[MAXPLAYERS + 1] = {0, ...};
 static int g_lastTeam[MAXPLAYERS + 1] = {0, ...};
@@ -54,14 +49,6 @@ public void OnPluginStart() {
 
     HookEvent("player_spawn", Event_PlayerSpawn);
     HookEvent("player_team", Event_PlayerTeam);
-
-    g_maxWarnings = CreateConVar("sm_afr_max_warnings", "3", "Maximum warnings about fast respawn");
-    g_punishType = CreateConVar("sm_afr_punish_type", "1", "Punish type for fast respawn (0 - freeze, 1 - kick, 2 - ban)");
-    g_freezeTime = CreateConVar("sm_afr_freeze_time", "5", "Freeze time (in seconds) due fast respawn");
-    g_banTime = CreateConVar("sm_afr_ban_time", "15", "Ban time (in minutes) due fast respawn");
-    g_minSpectatorTime = CreateConVar("sm_afr_min_spectator_time", "5", "Minimum time (in seconds) in spectator team to not be punished for fast respawn");
-
-    AutoExecConfig(true, "afr-punishment");
 }
 
 public void OnMapStart() {
@@ -253,28 +240,8 @@ static void SetEntityRenderColorHex(int client, int color) {
     SetEntityRenderColor(client, red, green, blue, alpha);
 }
 
-static int GetMaxWarnings() {
-    return g_maxWarnings.IntValue;
-}
-
-static int GetPunishType() {
-    return g_punishType.IntValue;
-}
-
-static int GetFreezeTime() {
-    return g_freezeTime.IntValue;
-}
-
-static int GetBanTime() {
-    return g_banTime.IntValue;
-}
-
-static float GetMinSpectatorTime() {
-    return g_minSpectatorTime.FloatValue;
-}
-
 static any Native_GetMaxWarnings(Handle plugin, int numParams) {
-    return g_maxWarnings.IntValue;
+    return GetMaxWarnings();
 }
 
 static any Native_GetWarnings(Handle plugin, int numParams) {
