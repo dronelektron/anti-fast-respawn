@@ -1,7 +1,7 @@
-#if defined _team_
-    #endinput
+#if defined _team_included_
+ #endinput
 #endif
-#define _team_
+#define _team_included_
 
 #define TEAM_SPECTATOR 1
 #define TEAM_ALLIES 2

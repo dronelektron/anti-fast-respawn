@@ -1,7 +1,7 @@
-#if defined _message_
-    #endinput
+#if defined _message_included_
+ #endinput
 #endif
-#define _message_
+#define _message_included_
 
 #define PREFIX "[AFR] "
 #define PREFIX_COLORED "{cyan}[AFR] "

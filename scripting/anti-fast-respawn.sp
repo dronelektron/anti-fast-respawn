@@ -4,6 +4,8 @@
 
 #include "morecolors"
 
+#pragma newdecls required
+
 #include "attack-blocker"
 #include "commands"
 #include "detector"
