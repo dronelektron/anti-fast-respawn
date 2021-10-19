@@ -1,5 +1,31 @@
 "Phrases"
 {
+    "Menu"
+    {
+        "en"    "Menu"
+    }
+
+    "Player name with warnings amount"
+    {
+        "#format" "{1:N},{2:d}"
+        "en"    "{1} ({2})"
+    }
+
+    "Reset warnings"
+    {
+        "en"    "Reset warnings"
+    }
+
+    "Remove warning"
+    {
+        "en"    "Remove one warning"
+    }
+
+    "Player no longer available"
+    {
+        "en"    "{default}The player you selected is no longer available"
+    }
+
     "Fast respawn detected"
     {
         "#format" "{1:N},{2:d},{3:d}"
@@ -55,5 +81,10 @@
     {
         "#format" "{1:N},{2:N}"
         "en"    "{yellow}{1}: {default}Removed one warning for player {green}{2}"
+    }
+
+    "You cannot attack"
+    {
+        "en"    "{default}You {red}cannot {default}deal damage while punished"
     }
 }
