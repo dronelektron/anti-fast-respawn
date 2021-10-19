@@ -1,5 +1,30 @@
 "Phrases"
 {
+    "Menu"
+    {
+        "ru"    "Меню"
+    }
+
+    "Player name with warnings amount"
+    {
+        "ru"    "{1} ({2})"
+    }
+
+    "Reset warnings"
+    {
+        "ru"    "Сбросить предупреждения"
+    }
+
+    "Remove warning"
+    {
+        "ru"    "Удалить одно предупреждение"
+    }
+
+    "Player no longer available"
+    {
+        "ru"    "{default}Выбранный игрок больше не доступен"
+    }
+
     "Fast respawn detected"
     {
         "ru"    "{default}Игрок {green}{1} {default}быстро возродился {red}(Предупреждений {2}/{3})"
@@ -48,5 +73,10 @@
     "Removed warning"
     {
         "ru"    "{yellow}{1}: {default}Удалено одно предупреждение для игрока {green}{2}"
+    }
+
+    "You cannot attack"
+    {
+        "ru"    "{default}Вы {red}не можете {default}нанести урон пока наказаны"
     }
 }

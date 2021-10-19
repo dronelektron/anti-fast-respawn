@@ -50,7 +50,7 @@ public APLRes AskPluginLoad2(Handle self, bool late, char[] error, int errMax) {
 }
 
 public void OnPluginStart() {
-    LoadTranslations("afr-punishment.phrases");
+    LoadTranslations("anti-fast-respawn.phrases");
 
     HookEvent("player_spawn", Event_PlayerSpawn);
     HookEvent("player_team", Event_PlayerTeam);

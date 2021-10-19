@@ -23,7 +23,7 @@ public APLRes AskPluginLoad2(Handle self, bool late, char[] error, int errMax) {
 }
 
 public void OnPluginStart() {
-    LoadTranslations("afr-menu.phrases");
+    LoadTranslations("anti-fast-respawn.phrases");
 }
 
 public int MenuHandler_Players(Menu menu, MenuAction action, int param1, int param2) {

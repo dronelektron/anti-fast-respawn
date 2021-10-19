@@ -38,6 +38,7 @@ public void OnPluginStart() {
     g_pluginEnabled = CreateConVar("sm_afr_enable", "1", "Enable (1) or disable (0) detection of fast respawn");
     g_minActivePlayers = CreateConVar("sm_afr_min_active_players", "1", "Minimum amount of active players to enable protection");
 
+    LoadTranslations("anti-fast-respawn.phrases");
     AutoExecConfig(true, "afr");
 }
 

@@ -23,7 +23,7 @@ static ConVar g_blockAttackerDamage = null;
 static ConVar g_blockVictimDamage = null;
 
 public void OnPluginStart() {
-    LoadTranslations("afr-attack-blocker.phrases");
+    LoadTranslations("anti-fast-respawn.phrases");
 
     g_blockAttackerDamage = CreateConVar("sm_afr_block_attacker_damage", "1", "Enable (1) or disable (0) damage from attacker when he is punished");
     g_blockVictimDamage = CreateConVar("sm_afr_block_victim_damage", "1", "Enable (1) or disable (0) damage on victim when he is punished");
