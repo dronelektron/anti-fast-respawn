@@ -1,38 +1,15 @@
-#include <sourcemod>
-#include <sdktools>
-#include <sdkhooks>
-#include <morecolors>
-#include <afr>
-#include <afr-punishment>
-
-#define SOUND_DAMAGE_MESSAGE "buttons/button8.wav"
-
-public Plugin myinfo = {
-    name = "Anti fast respawn (attack blocker)",
-    author = PLUGIN_AUTHOR,
-    description = "Blocks attack when a player is punished",
-    version = PLUGIN_VERSION,
-    url = ""
-}
-
-static const float DAMAGE_MESSAGE_TIMER_DELAY = 1.0;
-
 static Handle g_damageMessageTimer[MAXPLAYERS + 1] = {null, ...};
 
-public void OnPluginStart() {
-    LoadTranslations("anti-fast-respawn.phrases");
-}
-
-public void OnMapStart() {
+void PrecacheDamageMessageSound() {
     PrecacheSound(SOUND_DAMAGE_MESSAGE, true);
 }
 
-public void OnClientPutInServer(int client) {
+void HookTakeDamage(int client) {
     SDKHook(client, SDKHook_OnTakeDamageAlive, Hook_OnTakeDamage);
 }
 
-public void OnClientDisconnect(int client) {
-    SDKUnhook(client, SDKHook_OnTakeDamageAlive, Hook_OnTakeDamage);
+void UnhookTakeDamage(int client) {
+    SDKHook(client, SDKHook_OnTakeDamageAlive, Hook_OnTakeDamage);
 }
 
 public Action Timer_DamageMessage(Handle timer, int userId) {
@@ -52,20 +29,20 @@ public Action Hook_OnTakeDamage(int victim, int& attacker, int& inflictor, float
         return Plugin_Continue;
     }
 
-    if (Afr_IsPlayerPunished(attacker) && IsBlockAttackerDamage()) {
+    if (IsPlayerPunished(attacker) && IsBlockAttackerDamage()) {
         CreateDamageMessageTimerForAttacker(attacker);
 
         return Plugin_Handled;
     }
 
-    if (Afr_IsPlayerPunished(victim) && IsBlockVictimDamage()) {
+    if (IsPlayerPunished(victim) && IsBlockVictimDamage()) {
         return Plugin_Handled;
     }
 
     return Plugin_Continue;
 }
 
-static void CreateDamageMessageTimerForAttacker(int attacker) {
+void CreateDamageMessageTimerForAttacker(int attacker) {
     if (g_damageMessageTimer[attacker] == null) {
         int userId = GetClientUserId(attacker);
 
@@ -76,6 +53,6 @@ static void CreateDamageMessageTimerForAttacker(int attacker) {
     }
 }
 
-static bool IsClientIndexValid(int client) {
+bool IsClientIndexValid(int client) {
     return client >= 1 && client <= MaxClients;
 }

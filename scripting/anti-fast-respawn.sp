@@ -1,47 +1,75 @@
 #include <sourcemod>
 #include <sdktools>
-#include <afr>
+#include <sdkhooks>
+
+#include "morecolors"
+
+#include "anti-fast-respawn"
+#include "attack-blocker"
+#include "commands"
+#include "map-warnings"
+#include "menu"
+#include "punishment"
 
 public Plugin myinfo = {
-    name = "Anti fast respawn (core)",
-    author = PLUGIN_AUTHOR,
+    name = "Anti fast respawn",
+    author = "Dron-elektron",
     description = "Detects fast respawn if a player has changed his class after death near respawn zone",
-    version = PLUGIN_VERSION,
+    version = "0.16.0",
     url = ""
 }
 
-static const float CHECKER_TIMER_DURATION = 0.1;
-
-static GlobalForward g_onClientFastRespawned = null;
 static bool g_isRoundEnd = false;
 static Handle g_checkerTimer[MAXPLAYERS + 1] = {null, ...};
 static bool g_killed[MAXPLAYERS + 1] = {false, ...};
 
-public APLRes AskPluginLoad2(Handle self, bool late, char[] error, int errMax) {
-    CreateNative("Afr_IsProtectionEnabled", Native_IsProtectionEnabled);
-    CreateNative("Afr_IsPlayerKilled", Native_IsPlayerKilled);
-    CreateNative("Afr_SetPlayerKilled", Native_SetPlayerKilled);
-
-    return APLRes_Success;
-}
-
 public void OnPluginStart() {
     HookEvent("player_death", Event_PlayerDeath);
     HookEvent("player_spawn", Event_PlayerSpawn);
+    HookEvent("player_team", Event_PlayerTeam);
     HookEvent("player_changeclass", Event_PlayerChangeClass);
     HookEvent("dod_round_start", Event_RoundStart);
     HookEvent("dod_round_win", Event_RoundWin);
 
-    g_onClientFastRespawned = new GlobalForward("OnPlayerFastRespawned", ET_Ignore, Param_Cell);
-
     CreateConVars();
+    RegisterAdminCmds();
+    CreateMapWarningsTrie();
     LoadTranslations("anti-fast-respawn.phrases");
     AutoExecConfig(true, "anti-fast-respawn");
+}
+
+public void OnPluginEnd() {
+    DestroyMapWarningsTrie();
+}
+
+public void OnMapStart() {
+    PrecacheDamageMessageSound();
+    PrecachePunishmentSounds();
+}
+
+public void OnMapEnd() {
+    ClearMapWarningsTrie();
 }
 
 public void OnClientConnected(int client) {
     g_checkerTimer[client] = null;
     g_killed[client] = false;
+
+    SetPlayerAuthId(client, NO_AUTH_ID);
+    ClearPunishment(client);
+}
+
+public void OnClientAuthorized(int client, const char[] auth) {
+    LoadPlayerWarnings(client);
+}
+
+public void OnClientPutInServer(int client) {
+    HookTakeDamage(client);
+}
+
+public void OnClientDisconnect(int client) {
+    UnhookTakeDamage(client);
+    SavePlayerWarnings(client);
 }
 
 public void Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast) {
@@ -56,6 +84,18 @@ public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast
     int client = GetClientOfUserId(userId);
 
     g_killed[client] = false;
+
+    if (IsPlayerPunished(client)) {
+        BlockPlayer(client);
+    }
+}
+
+public void Event_PlayerTeam(Event event, const char[] name, bool dontBroadcast) {
+    int userId = event.GetInt("userid");
+    int client = GetClientOfUserId(userId);
+    int newTeam = event.GetInt("team");
+
+    CheckFastRespawnFromSpectator(client, newTeam);
 }
 
 public void Event_PlayerChangeClass(Event event, const char[] name, bool dontBroadcast) {
@@ -83,7 +123,7 @@ public Action Timer_Checker(Handle timer, int userId) {
     }
 
     if (IsPlayerAlive(client)) {
-        Call_OnClientFastRespawned(client);
+        PunishPlayer(client);
     }
 
     g_checkerTimer[client] = null;
@@ -91,14 +131,8 @@ public Action Timer_Checker(Handle timer, int userId) {
     return Plugin_Continue;
 }
 
-static void Call_OnClientFastRespawned(int client) {
-    Call_StartForward(g_onClientFastRespawned);
-    Call_PushCell(client);
-    Call_Finish();
-}
-
-static void CreateCheckerTimer(int client) {
-    if (!Afr_IsProtectionEnabled()) {
+void CreateCheckerTimer(int client) {
+    if (!IsProtectionEnabled()) {
         return;
     }
 
@@ -109,30 +143,25 @@ static void CreateCheckerTimer(int client) {
     }
 }
 
-static bool IsEnoughActivePlayers() {
+bool IsEnoughActivePlayers() {
     int activePlayers = GetActivePlayers();
     int minActivePlayers = GetMinActivePlayers();
 
     return activePlayers >= minActivePlayers;
 }
 
-static int GetActivePlayers() {
+int GetActivePlayers() {
     return GetTeamClientCount(TEAM_ALLIES) + GetTeamClientCount(TEAM_AXIS);
 }
 
-static any Native_IsProtectionEnabled(Handle plugin, int numParams) {
+bool IsProtectionEnabled() {
     return IsPluginEnabled() && IsEnoughActivePlayers() && !g_isRoundEnd;
 }
 
-static any Native_IsPlayerKilled(Handle plugin, int numParams) {
-    int client = GetNativeCell(1);
-
+bool IsPlayerKilled(int client) {
     return g_killed[client];
 }
 
-static any Native_SetPlayerKilled(Handle plugin, int numParams) {
-    int client = GetNativeCell(1);
-    bool isKilled = GetNativeCell(2);
-
+void SetPlayerKilled(int client, bool isKilled) {
     g_killed[client] = isKilled;
 }
