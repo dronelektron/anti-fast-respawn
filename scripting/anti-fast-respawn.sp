@@ -17,7 +17,7 @@ public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
     description = "Prevents fast respawn if a player has changed his class after death near respawn zone",
-    version = "0.16.0",
+    version = "1.0.0",
     url = ""
 }
 
