@@ -4,6 +4,7 @@
 
 #include "morecolors"
 
+#pragma semicolon 1
 #pragma newdecls required
 
 #include "attack-blocker"
@@ -19,7 +20,7 @@ public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
     description = "Prevents fast respawn if a player has changed his class after death near respawn zone",
-    version = "1.0.0",
+    version = "1.0.1",
     url = ""
 }
 
@@ -67,7 +68,6 @@ public void OnClientPutInServer(int client) {
 }
 
 public void OnClientDisconnect(int client) {
-    UnhookTakeDamage(client);
     SavePlayerWarnings(client);
 }
 

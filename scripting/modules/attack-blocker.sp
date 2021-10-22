@@ -8,10 +8,6 @@ void HookTakeDamage(int client) {
     SDKHook(client, SDKHook_OnTakeDamageAlive, Hook_OnTakeDamage);
 }
 
-void UnhookTakeDamage(int client) {
-    SDKHook(client, SDKHook_OnTakeDamageAlive, Hook_OnTakeDamage);
-}
-
 public Action Timer_DamageMessage(Handle timer, int userId) {
     int client = GetClientOfUserId(userId);
 

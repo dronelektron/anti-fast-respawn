@@ -56,7 +56,7 @@
 
     "Fast respawn forbidden"
     {
-        "en"    "Fast respawn forbidden"
+        "en"    "Fast respawn is forbidden"
     }
 
     "Warnings for player"
