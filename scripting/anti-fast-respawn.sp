@@ -4,6 +4,7 @@
 
 #include "morecolors"
 
+#pragma semicolon 1
 #pragma newdecls required
 
 #include "attack-blocker"
@@ -67,7 +68,6 @@ public void OnClientPutInServer(int client) {
 }
 
 public void OnClientDisconnect(int client) {
-    UnhookTakeDamage(client);
     SavePlayerWarnings(client);
 }
 
