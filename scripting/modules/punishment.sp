@@ -48,7 +48,7 @@ public Action Timer_Punish(Handle timer, int userId) {
         return Plugin_Stop;
     }
 
-    int punishmentSeconds = g_punishmentSeconds[client];
+    int punishmentSeconds = g_punishmentSeconds[client] - 1;
 
     if (punishmentSeconds > 0) {
         PrintHintText(client, "%t", "You was punished", punishmentSeconds);
