@@ -1,54 +1,46 @@
-static Handle g_damageMessageTimer[MAXPLAYERS + 1] = {null, ...};
-
 void PrecacheDamageMessageSound() {
     PrecacheSound(SOUND_DAMAGE_MESSAGE, true);
 }
 
-void HookTakeDamage(int client) {
-    SDKHook(client, SDKHook_OnTakeDamageAlive, Hook_OnTakeDamage);
+void HookPunishedPlayer(int client) {
+    SDKHook(client, SDKHook_OnTakeDamageAlive, Hook_OnTakeDamageAlive);
+    SDKHook(client, SDKHook_WeaponDrop, Hook_WeaponDrop);
 }
 
-public Action Timer_DamageMessage(Handle timer, int userId) {
-    int client = GetClientOfUserId(userId);
+void UnhookPunishedPlayer(int client) {
+    SDKUnhook(client, SDKHook_OnTakeDamageAlive, Hook_OnTakeDamageAlive);
+    SDKUnhook(client, SDKHook_WeaponDrop, Hook_WeaponDrop);
+}
 
-    if (client == 0) {
-        return Plugin_Stop;
-    }
+public Action Hook_OnTakeDamageAlive(int victim, int& attacker, int& inflictor, float& damage, int& damagetype, int& weapon, float damageForce[3], float damagePosition[3]) {
+    return IsBlockVictimDamage() ? Plugin_Handled : Plugin_Continue;
+}
 
-    g_damageMessageTimer[client] = null;
-
+public Action Hook_WeaponDrop(int client, int weapon) {
     return Plugin_Handled;
 }
 
-public Action Hook_OnTakeDamage(int victim, int& attacker, int& inflictor, float& damage, int& damagetype, int& weapon, float damageForce[3], float damagePosition[3]) {
-    if (!IsClientIndexValid(victim) || !IsClientIndexValid(attacker)) {
-        return Plugin_Continue;
+void BlockWeaponSlots(int client) {
+    if (!IsBlockAttackerDamage()) {
+        return;
     }
 
-    if (IsPlayerPunished(attacker) && IsBlockAttackerDamage()) {
-        CreateDamageMessageTimerForAttacker(attacker);
+    float duration = GetPunishmentEndTime(client);
 
-        return Plugin_Handled;
-    }
-
-    if (IsPlayerPunished(victim) && IsBlockVictimDamage()) {
-        return Plugin_Handled;
-    }
-
-    return Plugin_Continue;
-}
-
-void CreateDamageMessageTimerForAttacker(int attacker) {
-    if (g_damageMessageTimer[attacker] == null) {
-        int userId = GetClientUserId(attacker);
-
-        g_damageMessageTimer[attacker] = CreateTimer(DAMAGE_MESSAGE_TIMER_DELAY, Timer_DamageMessage, userId);
-
-        CPrintToChat(attacker, "%s%t", PREFIX_COLORED, "You cannot attack");
-        EmitSoundToClient(attacker, SOUND_DAMAGE_MESSAGE);
+    for (int i = 0; i < WEAPON_SLOT_MAX_COUNT; i++) {
+        BlockWeaponSlot(client, i, duration);
     }
 }
 
-bool IsClientIndexValid(int client) {
-    return client >= 1 && client <= MaxClients;
+void BlockWeaponSlot(int client, int slot, float next) {
+    int weapon = GetPlayerWeaponSlot(client, slot);
+
+    if (weapon != WEAPON_NOT_FOUND) {
+        SetWeaponNextAttack(weapon, next);
+    }
+}
+
+void SetWeaponNextAttack(int weapon, float next) {
+    SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", next);
+    SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", next);
 }
