@@ -25,16 +25,15 @@ public Plugin myinfo = {
 }
 
 public void OnPluginStart() {
+    CreateConVars();
+    RegisterAdminCmds();
+    CreateMapWarningsTrie();
     HookEvent("player_death", Event_PlayerDeath);
     HookEvent("player_spawn", Event_PlayerSpawn);
     HookEvent("player_team", Event_PlayerTeam);
     HookEvent("player_changeclass", Event_PlayerChangeClass);
     HookEvent("dod_round_start", Event_RoundStart);
     HookEvent("dod_round_win", Event_RoundWin);
-
-    CreateConVars();
-    RegisterAdminCmds();
-    CreateMapWarningsTrie();
     LoadTranslations("anti-fast-respawn.phrases");
     AutoExecConfig(true, "anti-fast-respawn");
 }
@@ -61,10 +60,6 @@ public void OnClientConnected(int client) {
 
 public void OnClientAuthorized(int client, const char[] auth) {
     LoadPlayerWarnings(client);
-}
-
-public void OnClientPutInServer(int client) {
-    HookTakeDamage(client);
 }
 
 public void OnClientDisconnect(int client) {

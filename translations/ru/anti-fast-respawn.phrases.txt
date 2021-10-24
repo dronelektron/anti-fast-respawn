@@ -74,9 +74,4 @@
     {
         "ru"    "{yellow}{1}: {default}Удалено одно предупреждение для игрока {green}{2}"
     }
-
-    "You cannot attack"
-    {
-        "ru"    "{default}Вы {red}не можете {default}нанести урон пока наказаны"
-    }
 }

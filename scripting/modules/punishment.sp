@@ -1,6 +1,7 @@
 static int g_warnings[MAXPLAYERS + 1] = {0, ...};
 static int g_punishmentSeconds[MAXPLAYERS + 1] = {0, ...};
 static int g_lastTeam[MAXPLAYERS + 1] = {0, ...};
+static float g_punishmentEndTime[MAXPLAYERS + 1] = {0.0, ...};
 static Handle g_punishmentTimer[MAXPLAYERS + 1] = {null, ...};
 static Handle g_spectatorTimer[MAXPLAYERS + 1] = {null, ...};
 
@@ -13,6 +14,11 @@ void ClearPunishment(int client) {
     g_warnings[client] = 0;
     g_punishmentSeconds[client] = 0;
     g_punishmentTimer[client] = null;
+    g_punishmentEndTime[client] = 0.0;
+}
+
+float GetPunishmentEndTime(int client) {
+    return g_punishmentEndTime[client];
 }
 
 void CheckFastRespawnFromSpectator(int client, int newTeam) {
@@ -143,21 +149,26 @@ void PunishPlayerByType(int client) {
 void BlockPlayer(int client) {
     if (!IsPlayerPunished(client)) {
         int userId = GetClientUserId(client);
+        int freezeTime = GetFreezeTime();
 
-        g_punishmentSeconds[client] = GetFreezeTime();
+        g_punishmentSeconds[client] = freezeTime;
         g_punishmentTimer[client] = CreateTimer(PUNISH_TIMER_INTERVAL, Timer_Punish, userId, TIMER_REPEAT);
+        g_punishmentEndTime[client] = GetGameTime() + float(freezeTime);
 
         EmitSoundAtEyePosition(client, SOUND_BLOCK);
     }
 
     SetEntityMoveType(client, MOVETYPE_NONE);
     SetEntityRenderColorHex(client, COLOR_BLOCK);
+    HookPunishedPlayer(client);
+    BlockWeaponSlots(client);
 }
 
 void UnblockPlayer(int client) {
     SetEntityMoveType(client, MOVETYPE_WALK);
     SetEntityRenderColorHex(client, COLOR_UNBLOCK);
     EmitSoundAtEyePosition(client, SOUND_UNBLOCK);
+    UnhookPunishedPlayer(client);
 }
 
 void EmitSoundAtEyePosition(int client, const char[] sound) {
