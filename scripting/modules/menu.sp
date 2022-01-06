@@ -92,7 +92,7 @@ void CreatePlayerOptionMenu(int client, int targetId) {
 
 void AddPlayersToMenu(Menu menu) {
     for (int client = 1; client <= MaxClients; client++) {
-        if (!IsClientConnected(client) || IsFakeClient(client)) {
+        if (!IsClientInGame(client) || IsFakeClient(client)) {
             continue;
         }
 
