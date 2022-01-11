@@ -32,7 +32,7 @@
 
     "Anti fast respawn advice"
     {
-        "ru"    "{default}Старайтесь не менять класс рядом с зоной возрождения пока вы мертвы"
+        "ru"    "{orange}Не меняйте класс на зоне возрождения после смерти"
     }
 
     "Player is abusing fast respawn"
