@@ -25,22 +25,26 @@ void BlockWeaponSlots(int client) {
         return;
     }
 
-    float duration = GetPunishmentEndTime(client);
+    float nextAttackTime = GetPunishmentEndTime(client);
 
     for (int i = 0; i < WEAPON_SLOT_MAX_COUNT; i++) {
-        BlockWeaponSlot(client, i, duration);
+        SetWeaponNextAttack(client, i, nextAttackTime);
     }
 }
 
-void BlockWeaponSlot(int client, int slot, float next) {
+void UnblockWeaponSlots(int client) {
+    float nextAttackTime = GetGameTime();
+
+    for (int i = 0; i < WEAPON_SLOT_MAX_COUNT; i++) {
+        SetWeaponNextAttack(client, i, nextAttackTime);
+    }
+}
+
+void SetWeaponNextAttack(int client, int slot, float nextAttackTime) {
     int weapon = GetPlayerWeaponSlot(client, slot);
 
     if (weapon != WEAPON_NOT_FOUND) {
-        SetWeaponNextAttack(weapon, next);
+        SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", nextAttackTime);
+        SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", nextAttackTime);
     }
-}
-
-void SetWeaponNextAttack(int weapon, float next) {
-    SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", next);
-    SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", next);
 }

@@ -153,7 +153,7 @@ void BlockPlayer(int client) {
 
         g_punishmentSeconds[client] = freezeTime;
         g_punishmentTimer[client] = CreateTimer(PUNISH_TIMER_INTERVAL, Timer_Punish, userId, TIMER_REPEAT);
-        g_punishmentEndTime[client] = GetGameTime() + float(freezeTime);
+        g_punishmentEndTime[client] = GetGameTime() + float(freezeTime) + 1.0;
 
         EmitSoundAtEyePosition(client, SOUND_BLOCK);
     }
@@ -165,10 +165,11 @@ void BlockPlayer(int client) {
 }
 
 void UnblockPlayer(int client) {
+    EmitSoundAtEyePosition(client, SOUND_UNBLOCK);
     SetEntityMoveType(client, MOVETYPE_WALK);
     SetEntityRenderColorHex(client, COLOR_UNBLOCK);
-    EmitSoundAtEyePosition(client, SOUND_UNBLOCK);
     UnhookPunishedPlayer(client);
+    UnblockWeaponSlots(client);
 }
 
 void EmitSoundAtEyePosition(int client, const char[] sound) {
