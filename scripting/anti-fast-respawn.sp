@@ -22,7 +22,7 @@ public Plugin myinfo = {
     description = "Prevents fast respawn if a player has changed his class after death near respawn zone",
     version = "1.0.4",
     url = ""
-}
+};
 
 public void OnPluginStart() {
     CreateConVars();
