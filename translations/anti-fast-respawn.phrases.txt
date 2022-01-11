@@ -34,7 +34,7 @@
 
     "Anti fast respawn advice"
     {
-        "en"    "{default}Try not to change class near the spawn zone while you are dead"
+        "en"    "{orange}Do not change class on the spawn zone after death"
     }
 
     "Player is abusing fast respawn"
