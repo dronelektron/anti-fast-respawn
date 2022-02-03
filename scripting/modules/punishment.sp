@@ -13,8 +13,9 @@ void PrecachePunishmentSounds() {
 void ClearPunishment(int client) {
     g_warnings[client] = 0;
     g_punishmentSeconds[client] = 0;
-    g_punishmentTimer[client] = null;
     g_punishmentEndTime[client] = 0.0;
+    g_punishmentTimer[client] = null;
+    g_spectatorTimer[client] = null;
 }
 
 float GetPunishmentEndTime(int client) {
@@ -95,7 +96,7 @@ void CreateSpectatorTimer(int client) {
         int userId = GetClientUserId(client);
         float minSpectatorTime = GetMinSpectatorTime();
 
-        g_spectatorTimer[client] = CreateTimer(minSpectatorTime, Timer_Spectator, userId);
+        g_spectatorTimer[client] = CreateTimer(minSpectatorTime, Timer_Spectator, userId, TIMER_FLAG_NO_MAPCHANGE);
     }
 }
 
@@ -152,7 +153,7 @@ void BlockPlayer(int client) {
         int freezeTime = GetFreezeTime();
 
         g_punishmentSeconds[client] = freezeTime;
-        g_punishmentTimer[client] = CreateTimer(PUNISH_TIMER_INTERVAL, Timer_Punish, userId, TIMER_REPEAT);
+        g_punishmentTimer[client] = CreateTimer(PUNISH_TIMER_INTERVAL, Timer_Punish, userId, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
         g_punishmentEndTime[client] = GetGameTime() + float(freezeTime) + 1.0;
 
         EmitSoundAtEyePosition(client, SOUND_BLOCK);
