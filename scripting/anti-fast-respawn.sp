@@ -16,11 +16,19 @@
 #include "punishment"
 #include "team"
 
+#include "modules/attack-blocker.sp"
+#include "modules/commands.sp"
+#include "modules/convars.sp"
+#include "modules/detector.sp"
+#include "modules/map-warnings.sp"
+#include "modules/menu.sp"
+#include "modules/punishment.sp"
+
 public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
     description = "Prevents fast respawn if a player changes class on the spawn zone after dying",
-    version = "1.0.5",
+    version = "1.0.6",
     url = ""
 };
 
