@@ -16,6 +16,8 @@ public int MenuHandler_Players(Menu menu, MenuAction action, int param1, int par
             delete menu;
         }
     }
+
+    return 0;
 }
 
 public int MenuHandler_PlayerOption(Menu menu, MenuAction action, int param1, int param2) {
@@ -49,6 +51,8 @@ public int MenuHandler_PlayerOption(Menu menu, MenuAction action, int param1, in
             delete menu;
         }
     }
+
+    return 0;
 }
 
 void CreatePlayersMenu(int client) {

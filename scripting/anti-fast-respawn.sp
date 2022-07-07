@@ -29,7 +29,7 @@ public Plugin myinfo = {
     author = "Dron-elektron",
     description = "Prevents fast respawn if a player changes class on the spawn zone after dying",
     version = "1.0.6",
-    url = ""
+    url = "https://github.com/dronelektron/anti-fast-respawn"
 };
 
 public void OnPluginStart() {
