@@ -52,7 +52,9 @@ public Action Timer_Punish(Handle timer, int userId) {
     int punishmentSeconds = g_punishmentSeconds[client] - 1;
 
     if (punishmentSeconds > 0) {
-        PrintHintText(client, "%t", "You was punished", punishmentSeconds);
+        if (IsShowPunishmentTimer()) {
+            PrintHintText(client, "%t", "You was punished", punishmentSeconds);
+        }
 
         g_punishmentSeconds[client]--;
 
@@ -157,6 +159,10 @@ void BlockPlayer(int client) {
         g_punishmentEndTime[client] = GetGameTime() + float(freezeTime) + 1.0;
 
         EmitSoundAtEyePosition(client, SOUND_BLOCK);
+
+        if (!IsShowPunishmentTimer()) {
+            PrintHintText(client, "%t", "You was punished", freezeTime);
+        }
     }
 
     SetEntityMoveType(client, MOVETYPE_NONE);
