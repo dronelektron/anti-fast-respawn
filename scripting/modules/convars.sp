@@ -11,6 +11,7 @@ static ConVar g_punishType = null;
 static ConVar g_freezeTime = null;
 static ConVar g_banTime = null;
 static ConVar g_minSpectatorTime = null;
+static ConVar g_showPunishmentTimer = null;
 
 void CreateConVars() {
     g_pluginEnabled = CreateConVar("sm_afr_enable", "1", "Enable (1) or disable (0) detection of fast respawn");
@@ -26,6 +27,7 @@ void CreateConVars() {
     g_freezeTime = CreateConVar("sm_afr_freeze_time", "5", "Freeze time (in seconds) due fast respawn");
     g_banTime = CreateConVar("sm_afr_ban_time", "15", "Ban time (in minutes) due fast respawn");
     g_minSpectatorTime = CreateConVar("sm_afr_min_spectator_time", "5", "Minimum time (in seconds) in spectator team to not be punished for fast respawn");
+    g_showPunishmentTimer = CreateConVar("sm_afr_show_punishment_timer", "1", "Show punishment timer");
 }
 
 bool IsPluginEnabled() {
@@ -66,4 +68,8 @@ int GetBanTime() {
 
 float GetMinSpectatorTime() {
     return g_minSpectatorTime.FloatValue;
+}
+
+bool IsShowPunishmentTimer() {
+    return g_showPunishmentTimer.IntValue == 1;
 }
