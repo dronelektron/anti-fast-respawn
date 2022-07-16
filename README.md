@@ -23,6 +23,7 @@ Prevents fast respawn if a player changes class on the spawn zone after dying
 * sm_afr_ban_time - Ban time (in minutes) due fast respawn [default: "15"]
 * sm_afr_min_spectator_time - Minimum time (in seconds) in spectator team to not be punished for fast respawn [default: "5"]
 * sm_afr_enable_warnings_save - Enable (1) or disable (0) warnings save [default: "1"]
+* sm_afr_show_punishment_timer - Enable (1) or disable (0) the display of the punishment timer [default: "1"]
 
 ### Console Commands
 

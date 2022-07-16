@@ -27,7 +27,7 @@ void CreateConVars() {
     g_freezeTime = CreateConVar("sm_afr_freeze_time", "5", "Freeze time (in seconds) due fast respawn");
     g_banTime = CreateConVar("sm_afr_ban_time", "15", "Ban time (in minutes) due fast respawn");
     g_minSpectatorTime = CreateConVar("sm_afr_min_spectator_time", "5", "Minimum time (in seconds) in spectator team to not be punished for fast respawn");
-    g_showPunishmentTimer = CreateConVar("sm_afr_show_punishment_timer", "1", "Show punishment timer");
+    g_showPunishmentTimer = CreateConVar("sm_afr_show_punishment_timer", "1", "Enable (1) or disable (0) the display of the punishment timer");
 }
 
 bool IsPluginEnabled() {
