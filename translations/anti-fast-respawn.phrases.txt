@@ -1,34 +1,8 @@
 "Phrases"
 {
-    "Menu"
-    {
-        "en"    "Menu"
-    }
-
-    "Player name with warnings amount"
-    {
-        "#format" "{1:N},{2:d}"
-        "en"    "{1} ({2})"
-    }
-
-    "Reset warnings"
-    {
-        "en"    "Reset warnings"
-    }
-
-    "Remove warning"
-    {
-        "en"    "Remove one warning"
-    }
-
-    "Player no longer available"
-    {
-        "en"    "{default}The player you selected is no longer available"
-    }
-
     "Fast respawn detected"
     {
-        "#format" "{1:N},{2:d},{3:d}"
+        "#format"   "{1:N},{2:d},{3:d}"
         "en"    "{default}Player {green}{1} {default}fast respawned {red}(Warnings {2}/{3})"
     }
 
@@ -37,16 +11,10 @@
         "en"    "{orange}Do not change class on the spawn zone after death"
     }
 
-    "Player is abusing fast respawn"
+    "You was frozen"
     {
-        "#format" "{1:N},{2:d}"
-        "en"    "{default}Player {green}{1} {default}is abusing fast respawn {red}(already {2} times)"
-    }
-
-    "You was punished"
-    {
-        "#format" "{1:d}"
-        "en"    "You was punished for fast respawn (Seconds left: {1})"
+        "#format"   "{1:d}"
+        "en"    "You was frozen for fast respawn (Seconds left: {1})"
     }
 
     "You are free now"
@@ -54,32 +22,48 @@
         "en"    "You are free now"
     }
 
-    "Fast respawn forbidden"
-    {
-        "en"    "Fast respawn is forbidden"
-    }
-
     "Warnings for player"
     {
-        "#format" "{1:N},{2:d},{3:d}"
-        "en"    "{default}Warnings for player {green}{1}{default}: {red}{2}/{3}"
+        "#format"   "{1:N},{2:d},{3:d}"
+        "en"    "Warnings for player {1}: {2}/{3}"
     }
 
     "Player has no warnings"
     {
-        "#format" "{1:N}"
-        "en"    "{default}The player {green}{1} {default}has no warnings"
+        "#format"   "{1:N}"
+        "en"    "Player {1} has no warnings"
     }
 
-    "Warnings cleared"
+    "Warnings reset"
     {
-        "#format" "{1:N},{2:N}"
-        "en"    "{yellow}{1}: {default}Warnings for player {green}{2} {default}was reset to zero"
+        "#format"   "{1:N}"
+        "en"    "Warnings for player {1} have been reset"
     }
 
-    "Removed warning"
+    "Warnings reduced"
     {
-        "#format" "{1:N},{2:N}"
-        "en"    "{yellow}{1}: {default}Removed one warning for player {green}{2}"
+        "#format"   "{1:N}"
+        "en"    "The number of warnings for player {1} has been reduced"
+    }
+
+    "Player name with warnings"
+    {
+        "#format"   "{1:N},{2:d}"
+        "en"    "{1} (Warnings: {2})"
+    }
+
+    "Reset warnings"
+    {
+        "en"    "Reset warnings"
+    }
+
+    "Reduce warnings"
+    {
+        "en"    "Reduce warnings"
+    }
+
+    "Player no longer available"
+    {
+        "en"    "The player you selected is no longer available"
     }
 }

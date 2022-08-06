@@ -1,117 +1,103 @@
-static int g_menuTargetId[MAXPLAYERS + 1] = {0, ...};
+static int g_targetId[MAXPLAYERS + 1];
 
-public int MenuHandler_Players(Menu menu, MenuAction action, int param1, int param2) {
-    switch (action) {
-        case MenuAction_Select: {
-            char userIdStr[MAX_TEXT_BUFFER_LENGTH];
-
-            menu.GetItem(param2, userIdStr, sizeof(userIdStr));
-
-            int targetId = StringToInt(userIdStr);
-
-            CreatePlayerOptionMenu(param1, targetId);
-        }
-
-        case MenuAction_End: {
-            delete menu;
-        }
-    }
-
-    return 0;
-}
-
-public int MenuHandler_PlayerOption(Menu menu, MenuAction action, int param1, int param2) {
-    switch (action) {
-        case MenuAction_Select: {
-            char option[MAX_TEXT_BUFFER_LENGTH];
-
-            menu.GetItem(param2, option, sizeof(option));
-
-            int targetId = g_menuTargetId[param1];
-            int target = GetClientOfUserId(targetId);
-
-            if (target == 0) {
-                CPrintToChat(param1, "%s%t", PREFIX_COLORED, "Player no longer available");
-            } else {
-                if (StrEqual(option, PLAYER_OPTION_RESET_WARNINGS)) {
-                    ResetWarnings(param1, target);
-                } else if (StrEqual(option, PLAYER_OPTION_REMOVE_WARNING)) {
-                    RemoveWarning(param1, target);
-                }
-            }
-        }
-
-        case MenuAction_Cancel: {
-            if (param2 == MenuCancel_ExitBack) {
-                CreatePlayersMenu(param1);
-            }
-        }
-
-        case MenuAction_End: {
-            delete menu;
-        }
-    }
-
-    return 0;
-}
-
-void CreatePlayersMenu(int client) {
+void Menu_Players(int client) {
     Menu menu = new Menu(MenuHandler_Players);
 
-    menu.SetTitle("%s%T", PREFIX, "Menu", client);
+    menu.SetTitle(ANTI_FAST_RESPAWN);
 
-    AddPlayersToMenu(menu);
+    Menu_AddPlayers(menu, client);
 
     menu.Display(client, MENU_TIME_FOREVER);
 }
 
-void CreatePlayerOptionMenu(int client, int targetId) {
+public int MenuHandler_Players(Menu menu, MenuAction action, int param1, int param2) {
+    if (action == MenuAction_Select) {
+        char info[INFO_MAX_SIZE];
+
+        menu.GetItem(param2, info, sizeof(info));
+
+        int targetId = StringToInt(info);
+
+        Menu_PlayerOptions(param1, targetId);
+    } else if (action == MenuAction_End) {
+        delete menu;
+    }
+
+    return 0;
+}
+
+void Menu_PlayerOptions(int client, int targetId) {
     int target = GetClientOfUserId(targetId);
 
-    if (target == 0) {
-        CPrintToChat(client, "%s%t", PREFIX_COLORED, "Player no longer available");
+    if (target == INVALID_CLIENT) {
+        MessageReply_PlayerNoLongerAvailable(client);
 
         return;
     }
 
-    g_menuTargetId[client] = targetId;
+    g_targetId[client] = targetId;
 
-    Menu menu = new Menu(MenuHandler_PlayerOption);
-    int style;
+    Menu menu = new Menu(MenuHandler_PlayerOptions);
 
-    menu.SetTitle("%N", target);
+    int warnings = Client_GetWarnings(target);
 
-    if (GetWarnings(target) > 0) {
-        style = ITEMDRAW_DEFAULT;
-    } else {
-        style = ITEMDRAW_DISABLED;
-    }
+    menu.SetTitle("%T", ITEM_PLAYER_NAME_AND_WARNINGS, client, target, warnings);
 
-    AddFormattedMenuItem(menu, style, PLAYER_OPTION_RESET_WARNINGS, "%T", "Reset warnings", client);
-    AddFormattedMenuItem(menu, style, PLAYER_OPTION_REMOVE_WARNING, "%T", "Remove warning", client);
+    Menu_AddItem(menu, ITEM_WARNINGS_RESET, "%T", ITEM_WARNINGS_RESET, client);
+    Menu_AddItem(menu, ITEM_WARNINGS_REDUCE, "%T", ITEM_WARNINGS_REDUCE, client);
 
     menu.ExitBackButton = true;
     menu.Display(client, MENU_TIME_FOREVER);
 }
 
-void AddPlayersToMenu(Menu menu) {
-    for (int client = 1; client <= MaxClients; client++) {
-        if (!IsClientInGame(client) || IsFakeClient(client)) {
+public int MenuHandler_PlayerOptions(Menu menu, MenuAction action, int param1, int param2) {
+    if (action == MenuAction_Select) {
+        char info[INFO_MAX_SIZE];
+
+        menu.GetItem(param2, info, sizeof(info));
+
+        int targetId = g_targetId[param1];
+        int target = GetClientOfUserId(targetId);
+
+        if (target == INVALID_CLIENT) {
+            MessageReply_PlayerNoLongerAvailable(param1);
+
+            return 0;
+        }
+
+        if (StrEqual(info, ITEM_WARNINGS_RESET)) {
+            UseCase_ResetWarnings(param1, target);
+        } else if (StrEqual(info, ITEM_WARNINGS_REDUCE)) {
+            UseCase_ReduceWarnings(param1, target);
+        }
+    } else if (action == MenuAction_Cancel && param2 == MenuCancel_ExitBack) {
+        Menu_Players(param1);
+    } else if (action == MenuAction_End) {
+        delete menu;
+    }
+
+    return 0;
+}
+
+void Menu_AddPlayers(Menu menu, int client) {
+    for (int i = 1; i <= MaxClients; i++) {
+        if (!IsClientInGame(i) || IsFakeClient(i)) {
             continue;
         }
 
-        int userId = GetClientUserId(client);
-        char userIdStr[MAX_NAME_LENGTH];
-        int playerWarnings = GetWarnings(client);
+        int userId = GetClientUserId(i);
+        int warnings = Client_GetWarnings(i);
+        char info[INFO_MAX_SIZE];
 
-        IntToString(userId, userIdStr, sizeof(userIdStr));
-        AddFormattedMenuItem(menu, ITEMDRAW_DEFAULT, userIdStr, "%T", "Player name with warnings amount", client, client, playerWarnings);
+        IntToString(userId, info, sizeof(info));
+        Menu_AddItem(menu, info, "%T", ITEM_PLAYER_NAME_AND_WARNINGS, client, i, warnings);
     }
 }
 
-void AddFormattedMenuItem(Menu menu, int style, const char[] option, const char[] format, any ...) {
-    char text[MAX_TEXT_BUFFER_LENGTH];
+void Menu_AddItem(Menu menu, const char[] info, const char[] phrase, any ...) {
+    char item[ITEM_MAX_SIZE];
 
-    VFormat(text, sizeof(text), format, 5);
-    menu.AddItem(option, text, style);
+    VFormat(item, sizeof(item), phrase, 4);
+
+    menu.AddItem(info, item);
 }
