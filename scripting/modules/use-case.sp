@@ -13,7 +13,7 @@ void UseCase_ClientFastRespawned(int client, float spectatorTime) {
         Message_ClientFastRespawned(client, warnings, maxWarnings);
     } else {
         Client_SetWarnings(client, 0);
-        Api_OnFastRespawnPunish(client);
+        Api_OnFastRespawnPunishment(client);
     }
 }
 

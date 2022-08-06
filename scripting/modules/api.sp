@@ -1,15 +1,15 @@
-static GlobalForward g_onFastRespawnPunish = null;
+static GlobalForward g_onFastRespawnPunishment = null;
 
 void Api_Create() {
-    g_onFastRespawnPunish = new GlobalForward("OnFastRespawnPunish", ET_Ignore, Param_Cell);
+    g_onFastRespawnPunishment = new GlobalForward("OnFastRespawnPunishment", ET_Ignore, Param_Cell);
 }
 
 void Api_Destroy() {
-    delete g_onFastRespawnPunish;
+    delete g_onFastRespawnPunishment;
 }
 
-void Api_OnFastRespawnPunish(int client) {
-    Call_StartForward(g_onFastRespawnPunish);
+void Api_OnFastRespawnPunishment(int client) {
+    Call_StartForward(g_onFastRespawnPunishment);
     Call_PushCell(client);
     Call_Finish();
 }

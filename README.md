@@ -35,7 +35,7 @@ Allows you to prevent a fast respawn
 * client - Client's number
 
 ```
-forward void OnFastRespawnPunish(int client);
+forward void OnFastRespawnPunishment(int client);
 ```
 
-See [this plugin](https://github.com/dronelektron/anti-fast-respawn/blob/master/scripting/anti-fast-respawn-punish.sp) for API usage example
+See [this plugin](https://github.com/dronelektron/anti-fast-respawn/blob/master/scripting/anti-fast-respawn-punishment.sp) for API usage example
