@@ -38,7 +38,7 @@ void MessageReply_ResetWarningsUsage(int client) {
 }
 
 void Message_WarningsReset(int client, int target) {
-    PrintToChatAll("%s%t", PREFIX, "Warnings reset", client, target);
+    ShowActivity2(client, PREFIX, "%t", "Warnings reset", target);
     LogMessage("\"%L\" reset warnings for \"%L\"", client, target);
 }
 
@@ -47,7 +47,7 @@ void MessageReply_ReduceWarningsUsage(int client) {
 }
 
 void Message_WarningsReduced(int client, int target) {
-    PrintToChatAll("%s%t", PREFIX, "Warnings reduced", client, target);
+    ShowActivity2(client, PREFIX, "%t", "Warnings reduced", target);
     LogMessage("\"%L\" reduced warnings for \"%L\"", client, target);
 }
 
