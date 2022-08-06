@@ -9,7 +9,7 @@ public Plugin myinfo = {
     name = "Anti fast respawn [punishment]",
     author = "Dron-elektron",
     description = "Kicks the player for a fast respawn",
-    version = "1.0.0",
+    version = "1.1.0",
     url = "https://github.com/dronelektron/anti-fast-respawn"
 };
 
