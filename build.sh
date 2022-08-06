@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PLUGIN_CORE_NAME="anti-fast-respawn"
-PLUGIN_PUNISH_NAME="anti-fast-respawn-punish"
+PLUGIN_PUNISH_NAME="anti-fast-respawn-punishment"
 
 cd scripting
 echo ================ Core ================
