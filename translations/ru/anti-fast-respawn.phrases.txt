@@ -1,30 +1,5 @@
 "Phrases"
 {
-    "Menu"
-    {
-        "ru"    "Меню"
-    }
-
-    "Player name with warnings amount"
-    {
-        "ru"    "{1} ({2})"
-    }
-
-    "Reset warnings"
-    {
-        "ru"    "Сбросить предупреждения"
-    }
-
-    "Remove warning"
-    {
-        "ru"    "Удалить одно предупреждение"
-    }
-
-    "Player no longer available"
-    {
-        "ru"    "{default}Выбранный игрок больше не доступен"
-    }
-
     "Fast respawn detected"
     {
         "ru"    "{default}Игрок {green}{1} {default}быстро возродился {red}(Предупреждений {2}/{3})"
@@ -32,17 +7,12 @@
 
     "Anti fast respawn advice"
     {
-        "ru"    "{orange}Не меняйте класс на зоне возрождения после смерти"
+        "ru"    "{orange}Не меняйте класс на респауне после смерти"
     }
 
-    "Player is abusing fast respawn"
+    "You was frozen"
     {
-        "ru"    "{default}Игрок {green}{1} {default}злоупотребляет быстрым респауном {red}(уже {2} раз(а))"
-    }
-
-    "You was punished"
-    {
-        "ru"    "Вы были наказаны за быстрое возрождение (Осталось секунд: {1})"
+        "ru"    "Вы были замарожены за быстрое возрождение (Осталось секунд: {1})"
     }
 
     "You are free now"
@@ -50,28 +20,43 @@
         "ru"    "Теперь вы свободны"
     }
 
-    "Fast respawn forbidden"
-    {
-        "ru"    "Быстрое возрождение запрещено"
-    }
-
     "Warnings for player"
     {
-        "ru"    "{default}Предупреждений для игрока {green}{1}{default}: {red}{2}/{3}"
+        "ru"    "Предупреждений для игрока {1}: {2}/{3}"
     }
 
     "Player has no warnings"
     {
-        "ru"    "{default}У игрока {green}{1} {default}нет предупреждений"
+        "ru"    "У игрока {1} нет предупреждений"
     }
 
-    "Warnings cleared"
+    "Warnings reset"
     {
-        "ru"    "{yellow}{1}: {default}Предупреждения для игрока {green}{2} {default}были сброшены"
+        "ru"    "Предупреждения для игрока {1} были сброшены"
     }
 
-    "Removed warning"
+    "Warnings reduced"
     {
-        "ru"    "{yellow}{1}: {default}Удалено одно предупреждение для игрока {green}{2}"
+        "ru"    "Количество предупреждений для игрока {1} было уменьшено"
+    }
+
+    "Player name with warnings"
+    {
+        "ru"    "{1} (Предупреждений: {2})"
+    }
+
+    "Reset warnings"
+    {
+        "ru"    "Сбросить предупреждения"
+    }
+
+    "Reduce warnings"
+    {
+        "ru"    "Уменьшить предупреждения"
+    }
+
+    "Player no longer available"
+    {
+        "ru"    "Выбранный вами игрок больше не доступен"
     }
 }

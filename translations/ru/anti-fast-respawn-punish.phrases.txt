@@ -1,0 +1,7 @@
+"Phrases"
+{
+    "Fast respawn is forbidden"
+    {
+        "ru"    "Быстрое возрождение запрещено"
+    }
+}

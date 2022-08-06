@@ -1,0 +1,7 @@
+"Phrases"
+{
+    "Fast respawn is forbidden"
+    {
+        "en"    "Fast respawn is forbidden"
+    }
+}
