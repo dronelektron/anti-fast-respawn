@@ -30,7 +30,7 @@ public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
     description = "Allows you to prevent a fast respawn",
-    version = "1.1.0",
+    version = "1.2.0",
     url = "https://github.com/dronelektron/anti-fast-respawn"
 };
 
