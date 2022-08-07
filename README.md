@@ -8,8 +8,10 @@ Allows you to prevent a fast respawn
 
 ### Installation
 
+* Install [fast-respawn-detector](https://github.com/dronelektron/fast-respawn-detector)
 * Download latest [release](https://github.com/dronelektron/anti-fast-respawn/releases) (compiled for SourceMod 1.11)
 * Extract "plugins" and "translations" folders to "addons/sourcemod" folder of your server
+* Use default punishment plugin (anti-fast-respawn-punishment.smx) or write your own
 
 ### Console Variables
 
