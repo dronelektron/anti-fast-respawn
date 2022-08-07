@@ -14,7 +14,7 @@ public Plugin myinfo = {
 };
 
 public void OnPluginStart() {
-	LoadTranslations("anti-fast-respawn-punishment.phrases");
+    LoadTranslations("anti-fast-respawn-punishment.phrases");
 }
 
 public void OnAllPluginsLoaded() {
@@ -24,5 +24,5 @@ public void OnAllPluginsLoaded() {
 }
 
 public void OnFastRespawnPunishment(int client) {
-	KickClient(client, "%t", "Fast respawn is forbidden");
+    KickClient(client, "%t", "Fast respawn is forbidden");
 }
