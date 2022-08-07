@@ -8,10 +8,10 @@ Allows you to prevent a fast respawn
 
 ### Installation
 
-* Install [fast-respawn-detector](https://github.com/dronelektron/fast-respawn-detector)
 * Download latest [release](https://github.com/dronelektron/anti-fast-respawn/releases) (compiled for SourceMod 1.11)
 * Extract "plugins" and "translations" folders to "addons/sourcemod" folder of your server
-* Use default punishment plugin (anti-fast-respawn-punishment.smx) or write your own
+* Install [fast-respawn-detector](https://github.com/dronelektron/fast-respawn-detector)
+* Install [punishment plugin](https://github.com/dronelektron/anti-fast-respawn-punishment) or write your own
 
 ### Console Variables
 
@@ -39,5 +39,3 @@ Allows you to prevent a fast respawn
 ```
 forward void OnFastRespawnPunishment(int client);
 ```
-
-See [this plugin](https://github.com/dronelektron/anti-fast-respawn/blob/master/scripting/anti-fast-respawn-punishment.sp) for API usage example
