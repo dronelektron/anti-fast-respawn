@@ -40,8 +40,9 @@ void Menu_PlayerOptions(int client, int targetId) {
     Menu menu = new Menu(MenuHandler_PlayerOptions);
 
     int warnings = Client_GetWarnings(target);
+    int maxWarnings = Variable_MaxWarnings();
 
-    menu.SetTitle("%T", ITEM_PLAYER_NAME_AND_WARNINGS, client, target, warnings);
+    menu.SetTitle("%T", ITEM_PLAYER_NAME_AND_WARNINGS, client, target, warnings, maxWarnings);
 
     Menu_AddItem(menu, ITEM_WARNINGS_RESET, "%T", ITEM_WARNINGS_RESET, client);
     Menu_AddItem(menu, ITEM_WARNINGS_REDUCE, "%T", ITEM_WARNINGS_REDUCE, client);
@@ -87,10 +88,11 @@ void Menu_AddPlayers(Menu menu, int client) {
 
         int userId = GetClientUserId(i);
         int warnings = Client_GetWarnings(i);
+        int maxWarnings = Variable_MaxWarnings();
         char info[INFO_MAX_SIZE];
 
         IntToString(userId, info, sizeof(info));
-        Menu_AddItem(menu, info, "%T", ITEM_PLAYER_NAME_AND_WARNINGS, client, i, warnings);
+        Menu_AddItem(menu, info, "%T", ITEM_PLAYER_NAME_AND_WARNINGS, client, i, warnings, maxWarnings);
     }
 }
 
