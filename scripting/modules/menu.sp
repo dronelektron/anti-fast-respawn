@@ -81,19 +81,34 @@ public int MenuHandler_PlayerOptions(Menu menu, MenuAction action, int param1, i
 }
 
 void Menu_AddPlayers(Menu menu, int client) {
-    for (int i = 1; i <= MaxClients; i++) {
-        if (!IsClientInGame(i) || IsFakeClient(i)) {
-            continue;
-        }
+    int players[MAXPLAYERS + 1];
+    int playersAmount = 0;
 
-        int userId = GetClientUserId(i);
-        int warnings = Client_GetWarnings(i);
+    for (int i = 1; i <= MaxClients; i++) {
+        if (IsClientInGame(i) && !IsFakeClient(i)) {
+            players[playersAmount++] = i;
+        }
+    }
+
+    SortCustom1D(players, playersAmount, MenuSortFunc_ByWarnings);
+
+    for (int i = 0; i < playersAmount; i++) {
+        int player = players[i];
+        int userId = GetClientUserId(player);
+        int warnings = Client_GetWarnings(player);
         int maxWarnings = Variable_MaxWarnings();
         char info[INFO_MAX_SIZE];
 
         IntToString(userId, info, sizeof(info));
-        Menu_AddItem(menu, info, "%T", ITEM_PLAYER_NAME_AND_WARNINGS, client, i, warnings, maxWarnings);
+        Menu_AddItem(menu, info, "%T", ITEM_PLAYER_NAME_AND_WARNINGS, client, player, warnings, maxWarnings);
     }
+}
+
+int MenuSortFunc_ByWarnings(int elem1, int elem2, const int[] array, Handle hndl) {
+    int warnings1 = Client_GetWarnings(elem1);
+    int warnings2 = Client_GetWarnings(elem2);
+
+    return warnings2 - warnings1;
 }
 
 void Menu_AddItem(Menu menu, const char[] info, const char[] phrase, any ...) {
