@@ -48,8 +48,8 @@
 
     "Player name with warnings"
     {
-        "#format"   "{1:N},{2:d}"
-        "en"    "{1} (Warnings: {2})"
+        "#format"   "{1:N},{2:d},{3:d}"
+        "en"    "{1} [{2}/{3}]"
     }
 
     "Reset warnings"
