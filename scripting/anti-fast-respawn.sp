@@ -4,9 +4,6 @@
 
 #include "morecolors"
 
-#pragma semicolon 1
-#pragma newdecls required
-
 #include "afr/game-state"
 #include "afr/menu"
 #include "afr/message"
@@ -30,7 +27,7 @@ public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
     description = "Allows you to prevent a fast respawn",
-    version = "1.3.0",
+    version = "1.3.1",
     url = "https://github.com/dronelektron/anti-fast-respawn"
 };
 
@@ -84,8 +81,8 @@ public void OnClientDisconnect(int client) {
     UseCase_SaveWarnings(client);
 }
 
-public void OnClientFastRespawned(int client, float spectatorsTime) {
-    UseCase_ClientFastRespawned(client, spectatorsTime);
+public void OnClientFastRespawned(int client, bool isKilled, float spectatorsTime) {
+    UseCase_ClientFastRespawned(client, isKilled, spectatorsTime);
 }
 
 public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast) {

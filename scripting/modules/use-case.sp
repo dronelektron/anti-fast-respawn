@@ -1,5 +1,5 @@
-void UseCase_ClientFastRespawned(int client, float spectatorTime) {
-    if (UseCase_IgnoreFastRespawn(client, spectatorTime)) {
+void UseCase_ClientFastRespawned(int client, bool isKilled, float spectatorTime) {
+    if (UseCase_IgnoreFastRespawn(client, isKilled, spectatorTime)) {
         return;
     }
 
@@ -17,9 +17,10 @@ void UseCase_ClientFastRespawned(int client, float spectatorTime) {
     }
 }
 
-bool UseCase_IgnoreFastRespawn(int client, float spectatorTime) {
+bool UseCase_IgnoreFastRespawn(int client, bool isKilled, float spectatorTime) {
     bool result = !Variable_PluginEnabled();
 
+    result |= !isKilled;
     result |= GameState_IsRoundEnd();
     result |= UseCase_SpectatorTimeTooLong(spectatorTime);
     result |= UseCase_NotEnoughActivePlayers();
