@@ -1,6 +1,6 @@
 void Message_ClientFastRespawned(int client, int warnings, int maxWarnings) {
-    CPrintToChatAll("%s%t", PREFIX_COLORED, "Fast respawn detected", client, warnings, maxWarnings);
-    CPrintToChat(client, "%s%t", PREFIX_COLORED, "Anti fast respawn advice");
+    PrintToChatAll(COLOR_DEFAULT ... "%t%t", PREFIX_COLORED, "Fast respawn detected", client, warnings, maxWarnings);
+    PrintToChat(client, COLOR_DEFAULT ... "%t%t", PREFIX_COLORED, "Anti fast respawn advice");
     LogMessage("\"%L\" fast respawned (%d/%d)", client, warnings, maxWarnings);
 }
 

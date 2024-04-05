@@ -2,13 +2,11 @@
 #include <sdktools>
 #include <sdkhooks>
 
-#include "morecolors"
-
-#include "afr/game-state"
-#include "afr/menu"
-#include "afr/message"
-#include "afr/sound"
-#include "afr/use-case"
+#include "anti-fast-respawn/game-state"
+#include "anti-fast-respawn/menu"
+#include "anti-fast-respawn/message"
+#include "anti-fast-respawn/sound"
+#include "anti-fast-respawn/use-case"
 
 #include "modules/api.sp"
 #include "modules/client.sp"
@@ -27,7 +25,7 @@ public Plugin myinfo = {
     name = "Anti fast respawn",
     author = "Dron-elektron",
     description = "Allows you to prevent a fast respawn",
-    version = "1.3.1",
+    version = "1.3.2",
     url = "https://github.com/dronelektron/anti-fast-respawn"
 };
 

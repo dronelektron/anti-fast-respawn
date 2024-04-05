@@ -1,14 +1,19 @@
 "Phrases"
 {
+    "Prefix colored"
+    {
+        "en"    "00FFFF[AFR] "
+    }
+
     "Fast respawn detected"
     {
         "#format"   "{1:N},{2:d},{3:d}"
-        "en"    "{default}Player {green}{1} {default}fast respawned {red}(Warnings {2}/{3})"
+        "en"    "Player 3EFF3E{1} fast respawned FF4040(Warnings {2}/{3})"
     }
 
     "Anti fast respawn advice"
     {
-        "en"    "{orange}Do not change class on the spawn zone after death"
+        "en"    "FFA500Do not change class on the spawn zone after death"
     }
 
     "You was frozen"
