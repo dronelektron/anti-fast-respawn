@@ -1,7 +1,7 @@
-#if defined _afr_message_included
+#if defined _anti_fast_respawn_message_included
  #endinput
 #endif
-#define _afr_message_included
+#define _anti_fast_respawn_message_included
 
 #define COLOR_DEFAULT "\x01"
 

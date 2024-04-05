@@ -1,7 +1,7 @@
-#if defined _afr_use_case_included
+#if defined _anti_fast_respawn_use_case_included
  #endinput
 #endif
-#define _afr_use_case_included
+#define _anti_fast_respawn_use_case_included
 
 #define TEAM_ALLIES 2
 #define TEAM_AXIS 3

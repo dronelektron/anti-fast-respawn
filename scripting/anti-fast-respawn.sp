@@ -2,11 +2,11 @@
 #include <sdktools>
 #include <sdkhooks>
 
-#include "afr/game-state"
-#include "afr/menu"
-#include "afr/message"
-#include "afr/sound"
-#include "afr/use-case"
+#include "anti-fast-respawn/game-state"
+#include "anti-fast-respawn/menu"
+#include "anti-fast-respawn/message"
+#include "anti-fast-respawn/sound"
+#include "anti-fast-respawn/use-case"
 
 #include "modules/api.sp"
 #include "modules/client.sp"

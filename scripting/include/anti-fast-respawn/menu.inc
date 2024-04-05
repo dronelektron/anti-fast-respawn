@@ -1,7 +1,7 @@
-#if defined _afr_menu_included
+#if defined _anti_fast_respawn_menu_included
  #endinput
 #endif
-#define _afr_menu_included
+#define _anti_fast_respawn_menu_included
 
 #define INFO_MAX_SIZE 128
 #define ITEM_MAX_SIZE 256
