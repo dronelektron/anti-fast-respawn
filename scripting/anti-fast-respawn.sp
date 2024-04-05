@@ -2,8 +2,6 @@
 #include <sdktools>
 #include <sdkhooks>
 
-#include "morecolors"
-
 #include "afr/game-state"
 #include "afr/menu"
 #include "afr/message"
